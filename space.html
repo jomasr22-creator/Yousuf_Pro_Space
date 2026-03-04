@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Yousuf Pro Space | Levels Edition</title>
+    <style>
+        body { margin: 0; background: #000; overflow: hidden; touch-action: none; font-family: 'Segoe UI', sans-serif; color: white; }
+        #game-container { position: relative; width: 100vw; height: 100vh; background: radial-gradient(circle, #0a0a2e 0%, #000 100%); overflow: hidden; }
+        
+        /* شاشة البداية والنهاية */
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 500; text-align: center; }
+        .btn-start { background: linear-gradient(45deg, #00d2ff, #3a7bd5); color: white; border: none; padding: 15px 40px; border-radius: 30px; font-size: 24px; font-weight: bold; cursor: pointer; box-shadow: 0 0 20px rgba(0,210,255,0.5); margin-top: 20px; }
+
+        /* الجرافيك الواقعي */
+        .star { position: absolute; background: white; border-radius: 50%; opacity: 0.5; animation: moveStar linear infinite; }
+        @keyframes moveStar { from { transform: translateY(-100px); } to { transform: translateY(100vh); } }
+        #ship { position: absolute; bottom: 40px; left: 50%; width: 70px; height: 70px; font-size: 55px; transform: translateX(-50%); z-index: 10; filter: drop-shadow(0 0 10px cyan); }
+        .bullet { position: absolute; width: 4px; height: 25px; background: linear-gradient(to top, #00ffff, #fff); box-shadow: 0 0 15px #00ffff; border-radius: 10px; }
+        .enemy { position: absolute; width: 50px; height: 50px; font-size: 40px; filter: drop-shadow(0 0 5px red); }
+
+        /* UI */
+        #ui { position: absolute; top: 15px; right: 15px; z-index: 100; text-align: right; background: rgba(0,0,0,0.6); padding: 10px; border-radius: 15px; border: 1px solid #333; }
+        #target-ui { color: #ffa500; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <div id="start-screen" class="overlay">
+            <h1 style="font-size: 45px; margin-bottom: 0; color: #00d2ff;">YOUSUF PRO</h1>
+            <p style="font-size: 20px; color: #ccc;">مهمة غزو الفضاء</p>
+            <button class="btn-start" onclick="startGame()">ابدأ اللعب 🎮</button>
+        </div>
+
+        <div id="level-screen" class="overlay" style="display:none;">
+            <h2 id="level-msg" style="color: #2ecc71; font-size: 35px;">ليفل 1 اكتمل! ✅</h2>
+            <button class="btn-start" onclick="nextLevel()">المستوى التالي 🚀</button>
+        </div>
+
+        <div id="ui" style="display:none;">
+            <div style="color:#00d2ff">المستوى: <span id="level-num">1</span></div>
+            <div>النقاط: <span id="score">0</span></div>
+            <div id="target-ui">الهدف: <span id="target-score">100</span></div>
+            <div id="lives" style="color:#ff4757">❤️❤️❤️</div>
+        </div>
+
+        <div id="ship" style="display:none;">🚀</div>
+    </div>
+
+    <script>
+        const ship = document.getElementById('ship');
+        const container = document.getElementById('game-container');
+        const scoreEl = document.getElementById('score');
+        const livesEl = document.getElementById('lives');
+        const levelEl = document.getElementById('level-num');
+        const targetEl = document.getElementById('target-score');
+
+        let score = 0; let lives = 3; let level = 1; 
+        let isGameOver = false; let isPaused = true;
+        let fireRate = 450; let enemySpeed = 4; let targetScore = 100;
+
+        function createStars() {
+            for(let i=0; i<40; i++) {
+                let star = document.createElement('div');
+                star.className = 'star';
+                star.style.width = Math.random() * 3 + 'px';
+                star.style.height = star.style.width;
+                star.style.left = Math.random() * 100 + 'vw';
+                star.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                container.appendChild(star);
+            }
+        }
+        createStars();
+
+        function startGame() {
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('ui').style.display = 'block';
+            ship.style.display = 'flex';
+            isPaused = false;
+            spawnEnemy();
+            setInterval(fire, fireRate);
+        }
+
+        const handleMove = (e) => {
+            if (isGameOver || isPaused) return;
+            let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            let x = clientX - 35;
+            if (x > 0 && x < window.innerWidth - 70) ship.style.left = x + 'px';
+        };
+        container.addEventListener('touchmove', handleMove);
+        container.addEventListener('mousemove', handleMove);
+
+        function fire() {
+            if (isGameOver || isPaused) return;
+            const b = document.createElement('div');
+            b.className = 'bullet';
+            b.style.left = (parseInt(ship.style.left || window.innerWidth/2) + 33) + 'px';
+            b.style.bottom = '115px';
+            container.appendChild(b);
+            let moveB = setInterval(() => {
+                let currentB = parseInt(b.style.bottom);
+                b.style.bottom = (currentB + 15) + 'px';
+                document.querySelectorAll('.enemy').forEach(en => {
+                    let br = b.getBoundingClientRect(); let er = en.getBoundingClientRect();
+                    if (br.left < er.right && br.right > er.left && br.top < er.bottom && br.bottom > er.top) {
+                        en.innerText = '💥'; setTimeout(() => en.remove(), 100);
+                        b.remove(); clearInterval(moveB);
+                        score += 10; scoreEl.innerText = score;
+                        checkMission();
+                    }
+                });
+                if (currentB > window.innerHeight) { clearInterval(moveB); b.remove(); }
+            }, 15);
+        }
+
+        function checkMission() {
+            if (score >= targetScore) {
+                isPaused = true;
+                document.getElementById('level-screen').style.display = 'flex';
+                document.getElementById('level-msg').innerText = `ليفل ${level} اكتمل! ✅`;
+                document.querySelectorAll('.enemy').forEach(e => e.remove());
+            }
+        }
+
+        function nextLevel() {
+            level++;
+            levelEl.innerText = level;
+            targetScore += 150;
+            targetEl.innerText = targetScore;
+            enemySpeed += 2;
+            fireRate = Math.max(200, fireRate - 50);
+            document.getElementById('level-screen').style.display = 'none';
+            isPaused = false;
+        }
+
+        function spawnEnemy() {
+            if (isGameOver || isPaused) { setTimeout(spawnEnemy, 1000); return; }
+            const en = document.createElement('div');
+            en.className = 'enemy';
+            en.innerText = level >= 3 ? '🛸' : '👾';
+            en.style.left = Math.random() * (window.innerWidth - 60) + 'px';
+            en.style.top = '-60px';
+            container.appendChild(en);
+
+            let moveEn = setInterval(() => {
+                if (isPaused) return;
+                let currentT = parseInt(en.style.top);
+                en.style.top = (currentT + enemySpeed) + 'px';
+                let sr = ship.getBoundingClientRect(); let er = en.getBoundingClientRect();
+                if (er.left < sr.right && er.right > sr.left && er.top < sr.bottom && er.bottom > sr.top) {
+                    en.remove(); clearInterval(moveEn);
+                    lives--; livesEl.innerText = "❤️".repeat(lives);
+                    if (lives <= 0) { isGameOver = true; alert("انتهت المحاولات! مجموع نقطك: " + score); location.reload(); }
+                }
+                if (currentT > window.innerHeight) { clearInterval(moveEn); en.remove(); }
+            }, 20);
+            setTimeout(spawnEnemy, 1200 - (level * 100));
+        }
+    </script>
+</body>
+</html>
