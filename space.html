@@ -6,47 +6,19 @@
     <title>Youssef Emad Studio</title>
     <style>
         body { 
-            margin: 0; 
-            background: #000 url('https://w0.peakpx.com/wallpaper/246/304/HD-wallpaper-view-from-space-at-earth-beautiful-planet-space-view-earth.jpg') no-repeat center center fixed; 
-            background-size: cover;
-            color: white; 
-            font-family: sans-serif; 
-            text-align: center; 
-            display: flex; flex-direction: column; justify-content: center; height: 100vh;
-            overflow: hidden;
+            margin: 0; background: #050505; color: white; font-family: sans-serif; text-align: center; 
+            display: flex; flex-direction: column; justify-content: center; height: 100vh; overflow: hidden;
         }
-        header { 
-            padding: 20px; 
-            background: rgba(0, 0, 0, 0.7);
-            border-radius: 20px;
-            max-width: 90%; margin: 0 auto;
-            backdrop-filter: blur(5px);
-            border: 1px solid #00f2fe;
-        }
-        h1 { 
-            color: #fff; 
-            font-size: 2em;
-            text-shadow: 0 0 10px #00f2fe, 0 0 20px #00f2fe;
-            margin: 10px 0;
-        }
-        .play-btn { 
-            background: #00f2fe; 
-            color: black; 
-            border: none; 
-            padding: 15px 30px; 
-            border-radius: 30px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            font-size: 1.2em;
-            box-shadow: 0 0 15px #00f2fe;
-        }
+        header { padding: 20px; border-radius: 20px; border: 1px solid #00f2fe; max-width: 80%; margin: 0 auto; }
+        h1 { color: #fff; text-shadow: 0 0 10px #00f2fe, 0 0 20px #00f2fe; margin: 10px 0; font-size: 2em; }
+        .play-btn { background: #00f2fe; color: black; border: none; padding: 15px 30px; border-radius: 30px; cursor: pointer; font-weight: bold; box-shadow: 0 0 15px #00f2fe; }
         #game-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; }
-        #game-canvas { width: 100%; height: 100%; position: relative; overflow: hidden; }
-        #ship { position: absolute; bottom: 30px; left: 50%; font-size: 40px; transform: translateX(-50%); transition: left 0.1s ease-out; }
-        .bullet { position: absolute; width: 4px; height: 15px; background: yellow; box-shadow: 0 0 5px yellow; }
+        #game-canvas { width: 100%; height: 100%; position: relative; overflow: hidden; background: #050505; }
+        #ship { position: absolute; bottom: 30px; left: 50%; font-size: 40px; transform: translateX(-50%); }
+        .bullet { position: absolute; width: 4px; height: 15px; background: #00f2fe; box-shadow: 0 0 5px #00f2fe; }
         .enemy { position: absolute; font-size: 30px; }
-        #score { position: absolute; top: 20px; right: 20px; color: gold; font-size: 20px; z-index: 10000; }
-        #close-btn { position: absolute; top: 10px; left: 10px; background: red; color: white; border: none; padding: 10px; cursor: pointer; z-index: 10001; border-radius: 5px; }
+        #score { position: absolute; top: 20px; right: 20px; color: #00f2fe; font-size: 20px; z-index: 10000; }
+        #close-btn { position: absolute; top: 10px; left: 10px; background: red; color: white; border: none; padding: 10px; cursor: pointer; z-index: 10001; }
     </style>
 </head>
 <body>
@@ -81,7 +53,6 @@
             canvas.addEventListener('mousemove', move);
             canvas.addEventListener('touchmove', move);
 
-            // إطلاق النار والاصطدام بالأعداء
             setInterval(() => {
                 if(!gameActive) return;
                 const b = document.createElement('div');
@@ -89,27 +60,20 @@
                 b.style.left = (ship.offsetLeft + 20) + 'px';
                 b.style.bottom = '80px';
                 canvas.appendChild(b);
-                
                 let bMove = setInterval(() => {
                     let bBottom = parseInt(b.style.bottom);
-                    b.style.bottom = (bBottom + 10) + 'px';
+                    b.style.bottom = (bBottom + 12) + 'px';
                     if(bBottom > window.innerHeight) { b.remove(); clearInterval(bMove); }
-                    
                     document.querySelectorAll('.enemy').forEach(en => {
                         let r1 = b.getBoundingClientRect(), r2 = en.getBoundingClientRect();
                         if(!(r1.right < r2.left || r1.left > r2.right || r1.bottom < r2.top || r1.top > r2.bottom)) {
-                            en.innerText = '💥'; 
-                            setTimeout(() => en.remove(), 100);
-                            b.remove(); 
-                            clearInterval(bMove);
-                            score += 10; 
-                            document.getElementById('pts').innerText = score;
+                            en.innerText = '💥'; setTimeout(() => en.remove(), 100);
+                            b.remove(); score += 10; document.getElementById('pts').innerText = score;
                         }
                     });
                 }, 20);
-            }, 400);
+            }, 350);
 
-            // إنشاء الأعداء والاصطدام بالسفينة
             setInterval(() => {
                 if(!gameActive) return;
                 const en = document.createElement('div');
@@ -117,19 +81,13 @@
                 en.style.left = Math.random() * (window.innerWidth - 40) + 'px';
                 en.style.top = '-50px';
                 canvas.appendChild(en);
-                
                 let eMove = setInterval(() => {
                     let eTop = parseInt(en.style.top);
                     en.style.top = (eTop + 5) + 'px';
-                    
-                    // تصادم الوحش مع السفينة
                     let r1 = en.getBoundingClientRect(), r2 = ship.getBoundingClientRect();
                     if(!(r1.right < r2.left || r1.left > r2.right || r1.bottom < r2.top || r1.top > r2.bottom)) {
-                        gameActive = false;
-                        alert("للأسف الوحش لمسك! نقاطك: " + score);
-                        location.reload();
+                        gameActive = false; alert("انتهت اللعبة! نقاطك: " + score); location.reload();
                     }
-                    
                     if(eTop > window.innerHeight) { en.remove(); clearInterval(eMove); }
                 }, 30);
             }, 1000);
