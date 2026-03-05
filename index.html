@@ -3,24 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>يوسف عماد | Yousuf Pro Space</title>
+    <title>مساحة البطل: يوسف عماد</title>
     <style>
         body { margin: 0; background: #000; overflow: hidden; touch-action: none; font-family: 'Segoe UI', sans-serif; color: white; }
         #game-container { position: relative; width: 100vw; height: 100vh; background: radial-gradient(circle, #0a0a2e 0%, #000 100%); overflow: hidden; }
         
-        /* شاشة البداية والنهاية */
-        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 500; text-align: center; }
-        .btn-start { background: linear-gradient(45deg, #00d2ff, #3a7bd5); color: white; border: none; padding: 15px 40px; border-radius: 30px; font-size: 24px; font-weight: bold; cursor: pointer; box-shadow: 0 0 20px rgba(0,210,255,0.5); margin-top: 20px; }
+        /* واجهة الدخول - مساحة البطل: يوسف عماد */
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 500; text-align: center; }
+        h1 { font-size: 45px; margin-bottom: 10px; color: #fff; text-shadow: 0 0 15px #00d2ff; }
+        .name-highlight { color: #ffea00; }
+        .btn-start { background: linear-gradient(45deg, #00d2ff, #3a7bd5); color: white; border: none; padding: 18px 50px; border-radius: 40px; font-size: 26px; font-weight: bold; cursor: pointer; box-shadow: 0 0 25px rgba(0,210,255,0.6); margin-top: 20px; transition: 0.3s; }
+        .btn-start:hover { transform: scale(1.1); background: #fff; color: #000; }
 
-        /* الجرافيك الواقعي */
+        /* الجرافيك واللعبة */
         .star { position: absolute; background: white; border-radius: 50%; opacity: 0.5; animation: moveStar linear infinite; }
         @keyframes moveStar { from { transform: translateY(-100px); } to { transform: translateY(100vh); } }
-        #ship { position: absolute; bottom: 40px; left: 50%; width: 70px; height: 70px; font-size: 55px; transform: translateX(-50%); z-index: 10; filter: drop-shadow(0 0 10px cyan); }
+        #ship { position: absolute; bottom: 40px; left: 50%; width: 70px; height: 70px; font-size: 55px; transform: translateX(-50%); z-index: 10; filter: drop-shadow(0 0 15px cyan); }
         .bullet { position: absolute; width: 4px; height: 25px; background: linear-gradient(to top, #00ffff, #fff); box-shadow: 0 0 15px #00ffff; border-radius: 10px; }
-        .enemy { position: absolute; width: 50px; height: 50px; font-size: 40px; filter: drop-shadow(0 0 5px red); }
+        .enemy { position: absolute; width: 50px; height: 50px; font-size: 40px; filter: drop-shadow(0 0 8px red); }
 
-        /* UI */
-        #ui { position: absolute; top: 15px; right: 15px; z-index: 100; text-align: right; background: rgba(0,0,0,0.6); padding: 10px; border-radius: 15px; border: 1px solid #333; }
+        /* UI اللعبة */
+        #ui { position: absolute; top: 15px; right: 15px; z-index: 100; text-align: right; background: rgba(0,0,0,0.7); padding: 12px; border-radius: 15px; border: 1px solid #00d2ff; }
         #target-ui { color: #ffa500; font-size: 14px; }
     </style>
 </head>
@@ -28,21 +31,21 @@
 
     <div id="game-container">
         <div id="start-screen" class="overlay">
-            <h1 style="font-size: 45px; margin-bottom: 0; color: #00d2ff;">يوسف عماد</h1>
-            <p style="font-size: 20px; color: #ccc;">YOUSUF PRO SPACE</p>
-            <button class="btn-start" onclick="startGame()">دخول المعركة 🎮</button>
+            <h1>مساحة البطل: <span class="name-highlight">يوسف عماد</span></h1>
+            <p style="font-size: 22px; color: #00d2ff;">مهمة غزو الفضاء - Star Wars</p>
+            <button class="btn-start" onclick="startGame()">ابدأ اللعب الآن 🚀</button>
         </div>
 
         <div id="level-screen" class="overlay" style="display:none;">
-            <h2 id="level-msg" style="color: #2ecc71; font-size: 35px;">ليفل 1 اكتمل! ✅</h2>
+            <h2 id="level-msg" style="color: #2ecc71; font-size: 35px;">تم اجتياز المستوى! ✅</h2>
             <button class="btn-start" onclick="nextLevel()">المستوى التالي 🚀</button>
         </div>
 
         <div id="ui" style="display:none;">
-            <div style="color:#00d2ff">المستوى: <span id="level-num">1</span></div>
+            <div style="color:#00d2ff; font-weight: bold;">المستوى: <span id="level-num">1</span></div>
             <div>النقاط: <span id="score">0</span></div>
             <div id="target-ui">الهدف: <span id="target-score">100</span></div>
-            <div id="lives" style="color:#ff4757">❤️❤️❤️</div>
+            <div id="lives" style="color:#ff4757; font-size: 20px;">❤️❤️❤️</div>
         </div>
 
         <div id="ship" style="display:none;">🚀</div>
@@ -128,7 +131,7 @@
             levelEl.innerText = level;
             targetScore += 150;
             targetEl.innerText = targetScore;
-            enemySpeed += 2;
+            enemySpeed += 1.5;
             fireRate = Math.max(200, fireRate - 50);
             document.getElementById('level-screen').style.display = 'none';
             isPaused = false;
@@ -151,7 +154,7 @@
                 if (er.left < sr.right && er.right > sr.left && er.top < sr.bottom && er.bottom > sr.top) {
                     en.remove(); clearInterval(moveEn);
                     lives--; livesEl.innerText = "❤️".repeat(lives);
-                    if (lives <= 0) { isGameOver = true; alert("انتهت المحاولات! مجموع نقطك: " + score); location.reload(); }
+                    if (lives <= 0) { isGameOver = true; alert("انتهت المحاولات يا بطل! مجموع نقطك: " + score); location.reload(); }
                 }
                 if (currentT > window.innerHeight) { clearInterval(moveEn); en.remove(); }
             }, 20);
