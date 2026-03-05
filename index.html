@@ -7,15 +7,18 @@
     <style>
         body { margin: 0; background: #000; overflow: hidden; touch-action: none; font-family: 'Segoe UI', sans-serif; color: white; }
         #game-container { position: relative; width: 100vw; height: 100vh; background: radial-gradient(circle, #0a0a2e 0%, #000 100%); overflow: hidden; }
+        
         .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 500; text-align: center; }
         h1 { font-size: 35px; margin-bottom: 10px; color: #fff; text-shadow: 0 0 15px #00d2ff; }
         .name-highlight { color: #ffea00; }
         .btn-start { background: linear-gradient(45deg, #00d2ff, #3a7bd5); color: white; border: none; padding: 15px 40px; border-radius: 40px; font-size: 22px; font-weight: bold; cursor: pointer; box-shadow: 0 0 25px rgba(0,210,255,0.6); margin-top: 20px; }
-        #ship { position: absolute; width: 60px; height: 60px; font-size: 50px; z-index: 10; filter: drop-shadow(0 0 15px cyan); display: none; align-items: center; justify-content: center; touch-action: none; }
+
+        #ship { position: absolute; width: 60px; height: 60px; font-size: 50px; z-index: 10; filter: drop-shadow(0 0 15px cyan); display: none; align-items: center; justify-content: center; touch-action: none; cursor: move; }
         .bullet { position: absolute; width: 4px; height: 20px; background: #00ffff; box-shadow: 0 0 10px #00ffff; border-radius: 5px; }
         .enemy { position: absolute; width: 45px; height: 45px; font-size: 35px; filter: drop-shadow(0 0 8px red); }
+
         #ui { position: absolute; top: 10px; right: 10px; z-index: 100; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 10px; border: 1px solid #00d2ff; font-size: 14px; }
-        #share-btn { position: fixed; bottom: 15px; left: 15px; z-index: 1000; background: #25d366; color: white; border: none; padding: 10px 15px; border-radius: 50px; font-weight: bold; font-size: 12px; }
+        #share-btn { position: fixed; bottom: 15px; left: 15px; z-index: 1000; background: #25d366; color: white; border: none; padding: 10px 15px; border-radius: 50px; font-weight: bold; font-size: 12px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -23,7 +26,7 @@
     <div id="game-container">
         <div id="start-screen" class="overlay">
             <h1>موقع المهندس: <span class="name-highlight">يوسف عماد</span></h1>
-            <p style="color: #00d2ff;">غزو الفضاء - تحكم حر بالصوت 🔊</p>
+            <p style="color: #00d2ff;">غزو الفضاء - تحكم طيران حر 🔊</p>
             <button class="btn-start" onclick="startGame()">ابدأ اللعب الآن 🚀</button>
         </div>
 
@@ -38,7 +41,7 @@
             <div id="lives">❤️❤️❤️</div>
         </div>
 
-        <div id="ship">🚀</div>
+        <div id="ship" style="left: 50%; top: 80%;">🚀</div>
     </div>
 
     <button id="share-btn" onclick="shareGame()">انشر اللعبة 📢</button>
@@ -54,9 +57,9 @@
         let isGameOver = false; let isPaused = true;
         let enemySpeed = 4; let targetScore = 100;
 
-        // مكتبة الصوت (أصوات إلكترونية قصيرة)
-        const shootSound = new Audio('https://replit.com/public/images/smb_fireball.wav');
-        const explodeSound = new Audio('https://replit.com/public/images/smb_touched.wav');
+        // مؤثرات صوتية
+        const shootSound = new Audio('https://www.soundjay.com/buttons/sounds/button-3.mp3');
+        const explodeSound = new Audio('https://www.soundjay.com/buttons/sounds/button-10.mp3');
 
         function startGame() {
             document.getElementById('start-screen').style.display = 'none';
@@ -67,87 +70,29 @@
             setInterval(fire, 400);
         }
 
-        // تحكم حر حقيقي (تتبع كامل للصباع)
+        // تحكم حر 360 درجة (تتبع حركة الإصبع أو الماوس)
         const moveShip = (e) => {
             if (isGameOver || isPaused) return;
+            e.preventDefault();
             let clientX = e.touches ? e.touches[0].clientX : e.clientX;
             let clientY = e.touches ? e.touches[0].clientY : e.clientY;
             
-            // جعل السفينة في منتصف الصباع بالضبط
-            ship.style.left = (clientX - 30) + 'px';
-            ship.style.top = (clientY - 30) + 'px';
+            // تحديث مكان السفينة لتتبع اللمس بالضبط
+            let x = clientX - (ship.offsetWidth / 2);
+            let y = clientY - (ship.offsetHeight / 2);
+
+            // البقاء داخل حدود الشاشة
+            if (x > 0 && x < window.innerWidth - ship.offsetWidth) ship.style.left = x + 'px';
+            if (y > 0 && y < window.innerHeight - ship.offsetHeight) ship.style.top = y + 'px';
         };
 
-        container.addEventListener('touchmove', moveShip);
+        container.addEventListener('touchmove', moveShip, {passive: false});
         container.addEventListener('mousemove', moveShip);
 
         function fire() {
             if (isGameOver || isPaused) return;
-            shootSound.cloneNode(true).play(); // تشغيل صوت الطلقة
+            shootSound.cloneNode(true).play();
             const b = document.createElement('div');
             b.className = 'bullet';
-            b.style.left = (parseInt(ship.style.left) + 28) + 'px';
-            b.style.top = (parseInt(ship.style.top) - 10) + 'px';
-            container.appendChild(b);
-
-            let moveB = setInterval(() => {
-                let currentTop = parseInt(b.style.top);
-                b.style.top = (currentTop - 15) + 'px';
-
-                document.querySelectorAll('.enemy').forEach(en => {
-                    let br = b.getBoundingClientRect(); let er = en.getBoundingClientRect();
-                    if (br.left < er.right && br.right > er.left && br.top < er.bottom && br.bottom > er.top) {
-                        explodeSound.cloneNode(true).play(); // تشغيل صوت الانفجار
-                        en.innerText = '💥'; setTimeout(() => en.remove(), 100);
-                        b.remove(); clearInterval(moveB);
-                        score += 10; scoreEl.innerText = score;
-                        if (score >= targetScore) {
-                            isPaused = true;
-                            document.getElementById('level-screen').style.display = 'flex';
-                        }
-                    }
-                });
-                if (currentTop < -20) { clearInterval(moveB); b.remove(); }
-            }, 20);
-        }
-
-        function nextLevel() {
-            level++; levelEl.innerText = level;
-            targetScore += 150; enemySpeed += 1.5;
-            document.getElementById('level-screen').style.display = 'none';
-            isPaused = false;
-        }
-
-        function spawnEnemy() {
-            if (isGameOver || isPaused) { setTimeout(spawnEnemy, 1000); return; }
-            const en = document.createElement('div');
-            en.className = 'enemy';
-            en.innerText = level >= 2 ? '🛸' : '👾';
-            en.style.left = Math.random() * (window.innerWidth - 50) + 'px';
-            en.style.top = '-50px';
-            container.appendChild(en);
-
-            let moveEn = setInterval(() => {
-                if (isPaused) return;
-                let currentT = parseInt(en.style.top);
-                en.style.top = (currentT + enemySpeed) + 'px';
-                
-                let sr = ship.getBoundingClientRect(); let er = en.getBoundingClientRect();
-                if (er.left < sr.right && er.right > sr.left && er.top < sr.bottom && er.bottom > sr.top) {
-                    en.remove(); clearInterval(moveEn);
-                    lives--; livesEl.innerText = "❤️".repeat(lives);
-                    if (lives <= 0) { alert("انتهت المهمة! سكورك: " + score); location.reload(); }
-                }
-                if (currentT > window.innerHeight) { clearInterval(moveEn); en.remove(); }
-            }, 30);
-            setTimeout(spawnEnemy, 1000);
-        }
-
-        function shareGame() {
-            const text = "العب لعبة المهندس يوسف عماد الجديدة! 🚀";
-            if (navigator.share) navigator.share({ title: 'يوسف عماد', text: text, url: window.location.href });
-        }
-    </script>
-    <script type='text/javascript' src='//pl28850103.effectivegatecpm.com/6c/f2/31/6cf2317723a650167c4a3465573e6976.js'></script>
-</body>
-</html>
+            b.style.left = (parseFloat(ship.style.left) + 28) + 'px';
+            b.style.top = (parseFloat(ship
