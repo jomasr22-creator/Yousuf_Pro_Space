@@ -3,24 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yousuf Emad Space | حرب النجوم</title>
+    <title>يوسف عماد | Yousuf Pro Space</title>
     <style>
         body { margin: 0; background: #000; color: #fff; font-family: 'Segoe UI', sans-serif; overflow: hidden; display: flex; flex-direction: column; align-items: center; }
-        .header { text-align: center; padding: 15px; z-index: 100; position: absolute; top: 0; width: 100%; background: rgba(0,0,0,0.6); border-bottom: 2px solid #00d4ff; }
+        .header { text-align: center; padding: 15px; z-index: 100; position: absolute; top: 0; width: 100%; background: rgba(0,0,0,0.7); border-bottom: 2px solid #00d4ff; }
         
-        /* تعديل الاسم ليصبح يوسف عماد مع تأثيرات قوية */
-        h1 { margin: 0; font-size: 2.8rem; color: #fff; text-shadow: 0 0 10px #00d4ff, 0 0 20px #00d4ff, 0 0 40px #00d4ff; letter-spacing: 2px; }
-        .user-name { color: #ffea00; text-shadow: 0 0 10px #ffea00; }
+        /* اسمك منور في الموقع */
+        h1 { margin: 0; font-size: 2.5rem; color: #fff; text-shadow: 0 0 10px #00d4ff, 0 0 20px #00d4ff; }
+        .name-highlight { color: #ffea00; text-shadow: 0 0 10px #ffea00; }
         
-        .score { font-size: 1.4rem; color: #fff; margin-top: 5px; }
-        canvas { display: block; background: radial-gradient(circle at center, #1B2735 0%, #000 100%); cursor: crosshair; }
+        .score { font-size: 1.2rem; color: #00ff00; margin-top: 5px; }
+        canvas { display: block; background: #000; cursor: crosshair; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>YOUSUF <span class="user-name">EMAD</span> SPACE</h1>
-        <div class="score">نقاط البطل: <span id="scoreVal">0</span></div>
+        <h1>مساحة البطل: <span class="name-highlight">يوسف عماد</span></h1>
+        <div class="score">النقاط: <span id="scoreVal">0</span></div>
     </div>
 
     <canvas id="starGame"></canvas>
@@ -47,22 +47,22 @@
             ctx.fillStyle = "rgba(0, 0, 0, 0.2)"; 
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // رسم سفينة حربية متطورة
-            ctx.shadowBlur = 20;
+            // سفينة يوسف
+            ctx.shadowBlur = 15;
             ctx.shadowColor = "#00d4ff";
             ctx.fillStyle = "#00d4ff";
             ctx.beginPath();
             ctx.moveTo(player.x, player.y);
-            ctx.lineTo(player.x - 25, player.y + 45);
-            ctx.lineTo(player.x + 25, player.y + 45);
+            ctx.lineTo(player.x - 20, player.y + 40);
+            ctx.lineTo(player.x + 20, player.y + 40);
             ctx.closePath();
             ctx.fill();
 
             // الطلقات
             bullets.forEach((b, bi) => {
-                b.y -= 15;
+                b.y -= 12;
                 ctx.fillStyle = "#ff00ea";
-                ctx.fillRect(b.x-2, b.y, 5, 15);
+                ctx.fillRect(b.x-2, b.y, 4, 12);
                 if(b.y < 0) bullets.splice(bi, 1);
             });
 
