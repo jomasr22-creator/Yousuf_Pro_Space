@@ -3,26 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>موقع المهندس يوسف عماد</title>
+    <title>موقع المهندس يوسف عماد - Funny Space</title>
     <style>
-        body { margin: 0; background: #000; overflow: hidden; touch-action: none; font-family: sans-serif; }
+        body { margin: 0; background: #000; overflow: hidden; touch-action: none; font-family: 'Arial', sans-serif; }
         #game-area { position: relative; width: 100vw; height: 100vh; background: radial-gradient(circle, #001 0%, #000 100%); overflow: hidden; }
         .overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; color: white; text-align: center; }
-        .btn-start { background: #00d2ff; color: #000; border: none; padding: 15px 40px; border-radius: 30px; font-size: 20px; font-weight: bold; cursor: pointer; margin-top: 20px; box-shadow: 0 0 15px #00d2ff; }
-        #ship { position: absolute; width: 60px; height: 60px; font-size: 50px; z-index: 500; display: none; transform: translate3d(0,0,0); pointer-events: none; will-change: transform; }
-        .bullet { position: absolute; width: 4px; height: 20px; background: #0ff; border-radius: 5px; z-index: 400; box-shadow: 0 0 10px #0ff; }
-        .enemy { position: absolute; width: 40px; height: 40px; font-size: 35px; z-index: 300; transition: transform 0.1s linear; }
-        #ui { position: absolute; top: 10px; left: 10px; z-index: 800; color: white; background: rgba(0,0,0,0.6); padding: 10px; border-radius: 10px; border: 1px solid #00d2ff; }
+        .btn-start { background: #ffea00; color: #000; border: none; padding: 15px 40px; border-radius: 30px; font-size: 20px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        #ship { position: absolute; width: 60px; height: 60px; font-size: 50px; z-index: 500; display: none; transform: translate3d(0,0,0); pointer-events: none; }
+        .bullet { position: absolute; font-size: 20px; z-index: 400; }
+        .enemy { position: absolute; width: 45px; height: 45px; font-size: 35px; z-index: 300; }
+        #boss { position: absolute; width: 150px; height: 150px; font-size: 100px; z-index: 600; display: none; text-align: center; }
+        #ui { position: absolute; top: 10px; left: 10px; z-index: 800; color: white; background: rgba(0,0,0,0.6); padding: 10px; border-radius: 10px; border: 1px solid #ffea00; }
     </style>
 </head>
 <body>
     <div id="game-area">
         <div id="start-screen" class="overlay">
             <h1>موقع المهندس <span style="color:#ffea00">يوسف عماد</span></h1>
-            <p>اضغط للبدء في غزو الفضاء 🚀</p>
-            <button class="btn-start" onclick="startGame()">انطلاق 🚀</button>
+            <p>جاهز لغزو الفضائيين المضحكين؟ 😜</p>
+            <button class="btn-start" onclick="startGame()">يلا بينا! 🚀</button>
         </div>
         <div id="ui" style="display:none;">النقاط: <span id="score">0</span> | القلوب: <span id="lives">❤️❤️❤️</span></div>
+        <div id="boss">🤡</div>
         <div id="ship">🚀</div>
     </div>
 
@@ -31,16 +33,17 @@
         const area = document.getElementById('game-area');
         const scoreEl = document.getElementById('score');
         const livesEl = document.getElementById('lives');
-        let score = 0, lives = 3, isPaused = true, shipX = 0, shipY = 0, enemies = [];
+        const boss = document.getElementById('boss');
+        let score = 0, lives = 3, isPaused = true, shipX = 0, shipY = 0, enemies = [], enemyDirection = 1;
 
         function startGame() {
             document.getElementById('start-screen').style.display = 'none';
             document.getElementById('ui').style.display = 'block';
             ship.style.display = 'flex';
             isPaused = false;
-            createEnemies();
+            createGrid();
+            gameLoop();
             setInterval(fire, 400);
-            requestAnimationFrame(gameLoop);
         }
 
         area.addEventListener('pointermove', (e) => {
@@ -49,11 +52,11 @@
             ship.style.transform = `translate3d(${shipX}px, ${shipY}px, 0)`;
         });
 
-        function createEnemies() {
+        function createGrid() {
             for(let r=0; r<3; r++) {
                 for(let c=0; c<6; c++) {
                     const en = document.createElement('div');
-                    en.className = 'enemy'; en.innerText = '👾';
+                    en.className = 'enemy'; en.innerText = '😜';
                     en.style.left = (c * 60 + 50) + 'px'; en.style.top = (r * 60 + 50) + 'px';
                     area.appendChild(en); enemies.push(en);
                 }
@@ -63,24 +66,41 @@
         function fire() {
             if (isPaused) return;
             const b = document.createElement('div'); b.className = 'bullet';
-            b.style.left = (shipX + 28) + 'px'; b.style.top = (shipY) + 'px';
+            b.innerText = '❤️'; b.style.left = (shipX + 20) + 'px'; b.style.top = (shipY) + 'px';
             area.appendChild(b);
             let m = setInterval(() => {
                 let t = parseInt(b.style.top); b.style.top = (t - 10) + 'px';
                 enemies.forEach((en, i) => {
                     let br = b.getBoundingClientRect(), er = en.getBoundingClientRect();
                     if (br.left < er.right && br.right > er.left && br.top < er.bottom && br.bottom > er.top) {
-                        en.remove(); enemies.splice(i, 1); b.remove(); clearInterval(m);
+                        en.innerText = '😂'; setTimeout(() => en.remove(), 200);
+                        enemies.splice(i, 1); b.remove(); clearInterval(m);
                         score += 10; scoreEl.innerText = score;
-                        if (enemies.length === 0) createEnemies();
+                        if (enemies.length === 0) spawnBoss();
                     }
                 });
                 if (t < -20) { b.remove(); clearInterval(m); }
             }, 10);
         }
 
+        function spawnBoss() {
+            boss.style.display = 'block'; boss.style.left = '40%'; boss.style.top = '50px';
+            alert("البوس العظيم وصل! 🤡");
+        }
+
         function gameLoop() {
-            if (!isPaused) { /* إضافة حركة الأعداء هنا */ }
+            if (!isPaused && enemies.length > 0) {
+                let hitWall = false;
+                enemies.forEach(en => {
+                    let left = parseInt(en.style.left);
+                    en.style.left = (left + (enemyDirection * 2)) + 'px';
+                    if (left > window.innerWidth - 50 || left < 10) hitWall = true;
+                });
+                if (hitWall) {
+                    enemyDirection *= -1;
+                    enemies.forEach(en => en.style.top = (parseInt(en.style.top) + 20) + 'px');
+                }
+            }
             requestAnimationFrame(gameLoop);
         }
     </script>
