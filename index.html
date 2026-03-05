@@ -3,31 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yousuf Pro Studio</title>
+    <title>Youssef Emad Studio</title>
     <style>
-        body { margin: 0; background: #050505; color: white; font-family: sans-serif; text-align: center; }
-        header { padding: 50px; background: radial-gradient(circle, #1a1a2e, #050505); }
-        h1 { color: #00f2fe; text-shadow: 0 0 10px #00f2fe; }
-        .card { background: #111; border: 1px solid #333; padding: 20px; border-radius: 15px; max-width: 300px; margin: 20px auto; }
-        .play-btn { background: #00f2fe; color: black; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        body { 
+            margin: 0; 
+            /* خلفية فضاء حقيقية */
+            background: #000 url('https://w0.peakpx.com/wallpaper/246/304/HD-wallpaper-view-from-space-at-earth-beautiful-planet-space-view-earth.jpg') no-repeat center center fixed; 
+            background-size: cover;
+            color: white; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            text-align: center; 
+            display: flex; flex-direction: column; justify-content: center; height: 100vh;
+        }
+        header { 
+            padding: 30px; 
+            background: rgba(0, 0, 0, 0.7); /* خلفية سوداء شفافة للنص */
+            border-radius: 20px;
+            max-width: 90%; margin: 0 auto;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(0, 242, 254, 0.3);
+        }
+        /* تعديل الاسم ليكون Youssef Emad وبخط نيون أقوى */
+        h1 { 
+            color: #fff; 
+            text-transform: uppercase;
+            font-size: 2.5em;
+            margin-bottom: 5px;
+            text-shadow: 
+                0 0 7px #fff,
+                0 0 10px #fff,
+                0 0 21px #00f2fe,
+                0 0 42px #00f2fe,
+                0 0 82px #00f2fe;
+        }
+        p { color: #ccc; font-size: 1.1em; margin-top: 0; }
+        .card { 
+            background: rgba(17, 17, 17, 0.9); 
+            border: 2px solid #333; 
+            padding: 25px; 
+            border-radius: 20px; 
+            max-width: 320px; 
+            margin: 30px auto; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+        h3 { color: #f2fe00; text-shadow: 0 0 5px #f2fe00; margin-top: 0; }
+        .play-btn { 
+            background: linear-gradient(45deg, #00f2fe, #4facfe); 
+            color: black; 
+            border: none; 
+            padding: 15px 30px; 
+            border-radius: 30px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 1.2em;
+            text-transform: uppercase;
+            box-shadow: 0 5px 15px rgba(0, 242, 254, 0.4);
+            transition: transform 0.2s;
+        }
+        .play-btn:active { transform: scale(0.95); }
+        
+        /* كود اللعبة (بدون تغيير لضمان التشغيل) */
         #game-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; }
-        #game-canvas { width: 100%; height: 100%; position: relative; overflow: hidden; }
-        #ship { position: absolute; bottom: 30px; left: 50%; font-size: 40px; transform: translateX(-50%); }
-        .bullet { position: absolute; width: 4px; height: 15px; background: yellow; }
-        .enemy { position: absolute; font-size: 30px; }
-        #score { position: absolute; top: 20px; right: 20px; color: gold; font-size: 20px; }
-        #close-btn { position: absolute; top: 10px; left: 10px; background: red; color: white; border: none; padding: 10px; cursor: pointer; z-index: 10001; }
+        #game-canvas { width: 100%; height: 100%; position: relative; overflow: hidden; background: #000 url('https://i.imgur.com/3N44474.png') repeat; }
+        #ship { position: absolute; bottom: 30px; left: 50%; font-size: 50px; transform: translateX(-50%); user-select: none; }
+        .bullet { position: absolute; width: 5px; height: 18px; background: #fff; border-radius: 5px; box-shadow: 0 0 10px #fff; }
+        .enemy { position: absolute; font-size: 35px; user-select: none; }
+        #score { position: absolute; top: 20px; right: 20px; color: #f2fe00; font-size: 24px; font-weight: bold; text-shadow: 0 0 5px #000; z-index: 10000; }
+        #close-btn { position: absolute; top: 10px; left: 10px; background: rgba(255,0,0,0.7); color: white; border: none; padding: 10px 15px; border-radius: 10px; cursor: pointer; z-index: 10001; font-weight: bold; }
     </style>
 </head>
 <body>
     <header>
-        <h1>YOUSUF PRO STUDIO</h1>
-        <p>مبرمج واجهات وألعاب تفاعلية</p>
-        <div class="card">
-            <h3>🎮 لعبة غزو الفضاء</h3>
-            <button class="play-btn" onclick="openGame()">العب الآن 🚀</button>
-        </div>
+        <h1>YOUSSEF EMAD STUDIO</h1>
+        <p>مبرمج واجهات وألعاب تفاعلية محترف</p>
     </header>
+
+    <div class="card">
+        <h3>🎮 لعبة غزو الفضاء</h3>
+        <p>استخدم إصبعك لتحريك السفينة وإطلاق النار!</p>
+        <button class="play-btn" onclick="openGame()">العب الآن 🚀</button>
+    </div>
 
     <div id="game-modal">
         <button id="close-btn" onclick="location.reload()">إغلاق X</button>
@@ -38,28 +93,35 @@
     </div>
 
     <script>
+        // كود اللعبة نفسه لضمان إنه يفضل شغال
         function openGame() {
             document.getElementById('game-modal').style.display = 'block';
             const canvas = document.getElementById('game-canvas');
             const ship = document.getElementById('ship');
             let score = 0;
+            let shipX = window.innerWidth / 2;
 
             const move = (e) => {
-                let x = (e.touches ? e.touches[0].clientX : e.clientX) - 25;
-                ship.style.left = x + 'px';
+                let x = (e.touches ? e.touches[0].clientX : e.clientX);
+                if (x > 30 && x < window.innerWidth - 30) {
+                    shipX = x;
+                    ship.style.left = (shipX - 25) + 'px';
+                }
             };
             canvas.addEventListener('mousemove', move);
-            canvas.addEventListener('touchmove', move);
+            canvas.addEventListener('touchmove', move, {passive: false});
 
+            // إطلاق النار
             setInterval(() => {
+                if (document.getElementById('game-modal').style.display === 'none') return;
                 const b = document.createElement('div');
                 b.className = 'bullet';
-                b.style.left = (parseInt(ship.style.left || window.innerWidth/2) + 20) + 'px';
+                b.style.left = (shipX - 2.5) + 'px';
                 b.style.bottom = '80px';
                 canvas.appendChild(b);
                 let bMove = setInterval(() => {
                     let bBottom = parseInt(b.style.bottom);
-                    b.style.bottom = (bBottom + 10) + 'px';
+                    b.style.bottom = (bBottom + 12) + 'px';
                     if(bBottom > window.innerHeight) { b.remove(); clearInterval(bMove); }
                     document.querySelectorAll('.enemy').forEach(en => {
                         let r1 = b.getBoundingClientRect(), r2 = en.getBoundingClientRect();
@@ -69,20 +131,22 @@
                         }
                     });
                 }, 20);
-            }, 400);
+            }, 350);
 
+            // إنشاء الأعداء
             setInterval(() => {
+                if (document.getElementById('game-modal').style.display === 'none') return;
                 const en = document.createElement('div');
                 en.className = 'enemy'; en.innerText = '👾';
-                en.style.left = Math.random() * (window.innerWidth - 40) + 'px';
+                en.style.left = Math.random() * (window.innerWidth - 50) + 25 + 'px';
                 en.style.top = '-50px';
                 canvas.appendChild(en);
                 let eMove = setInterval(() => {
                     let eTop = parseInt(en.style.top);
-                    en.style.top = (eTop + 5) + 'px';
+                    en.style.top = (eTop + 4) + 'px';
                     if(eTop > window.innerHeight) { en.remove(); clearInterval(eMove); }
                 }, 30);
-            }, 1000);
+            }, 1200);
         }
     </script>
 </body>
