@@ -3,109 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yousuf Pro Space - Full Game</title>
+    <title>حرب النجوم | Yousuf Pro Space</title>
     <style>
-        /* التنسيق الكامل والشكل اللي كان في الفيديو */
-        body {
-            margin: 0;
-            padding: 0;
-            background: radial-gradient(circle, #1a1a2e 0%, #0f0f1a 100%);
-            color: white;
-            font-family: 'Segoe UI', sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        .container {
-            text-align: center;
-            z-index: 10;
-        }
-
-        h1 {
-            font-size: 3.5rem;
-            margin: 0;
-            text-shadow: 0 0 20px #00d4ff;
-            animation: glow 2s infinite alternate;
-        }
-
-        p {
-            font-size: 1.5rem;
-            color: #bdc3c7;
-        }
-
-        .highlight {
-            background: #2c5d7d;
-            padding: 2px 10px;
-            border-radius: 5px;
-        }
-
-        /* شكل اللعبة */
-        #gameCanvas {
-            border: 3px solid #00d4ff;
-            border-radius: 15px;
-            background: #000;
-            box-shadow: 0 0 30px rgba(0, 212, 255, 0.4);
-            margin-top: 20px;
-            cursor: crosshair;
-        }
-
-        @keyframes glow {
-            from { text-shadow: 0 0 10px #00d4ff; }
-            to { text-shadow: 0 0 30px #00d4ff, 0 0 40px #0055ff; }
-        }
+        body { margin: 0; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; display: flex; flex-direction: column; align-items: center; }
+        canvas { border: 2px solid #00d4ff; background: url('https://www.transparenttextures.com/patterns/stardust.png'); margin-top: 10px; box-shadow: 0 0 20px #00d4ff; }
+        .info { text-align: center; z-index: 10; }
+        h1 { margin: 5px; font-size: 2rem; text-shadow: 0 0 10px #00d4ff; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>Yousuf Pro Space</h1>
-        <p>استمتع <span class="highlight">باللعبة</span> الآن واجمع النقاط!</p>
+    <div class="info">
+        <h1>Yousuf Pro Space - حرب النجوم</h1>
+        <p>استخدم الأسهم للحركة والمسافة (Space) للإطلاق!</p>
     </div>
 
-    <canvas id="gameCanvas" width="600" height="300"></canvas>
+    <canvas id="starWarsGame"></canvas>
 
     <script>
-        // كود برمجة اللعبة بالكامل
-        const canvas = document.getElementById('gameCanvas');
+        const canvas = document.getElementById('starWarsGame');
         const ctx = canvas.getContext('2d');
-        
-        let ballX = canvas.width / 2;
-        let ballY = canvas.height - 30;
-        let dx = 3;
-        let dy = -3;
-        let ballRadius = 10;
+        canvas.width = 600; canvas.height = 400;
 
-        function drawBall() {
-            ctx.beginPath();
-            ctx.arc(ballX, ballY, ballRadius, 0, Math.PI*2);
-            ctx.fillStyle = "#00d4ff";
-            ctx.fill();
-            ctx.closePath();
+        let ship = { x: 275, y: 340, w: 50, h: 50, speed: 7 };
+        let bullets = [];
+        let enemies = [];
+        let score = 0;
+
+        // إنشاء الوحوش
+        function createEnemy() {
+            enemies.push({ x: Math.random() * (canvas.width - 30), y: -30, w: 30, h: 30, speed: 2 });
         }
+        setInterval(createEnemy, 1000);
 
-        function update() {
+        function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawBall();
+            
+            // رسم السفينة (مثلث أزرق)
+            ctx.fillStyle = "#00d4ff";
+            ctx.beginPath();
+            ctx.moveTo(ship.x + 25, ship.y);
+            ctx.lineTo(ship.x, ship.y + 50);
+            ctx.lineTo(ship.x + 50, ship.y + 50);
+            ctx.fill();
 
-            if(ballX + dx > canvas.width - ballRadius || ballX + dx < ballRadius) {
-                dx = -dx;
-            }
-            if(ballY + dy > canvas.height - ballRadius || ballY + dy < ballRadius) {
-                dy = -dy;
-            }
+            // الطلقات
+            bullets.forEach((b, i) => {
+                b.y -= 10;
+                ctx.fillStyle = "yellow";
+                ctx.fillRect(b.x, b.y, 5, 15);
+                if(b.y < 0) bullets.splice(i, 1);
+            });
 
-            ballX += dx;
-            ballY += dy;
-            requestAnimationFrame(update);
+            // الوحوش
+            enemies.forEach((e, i) => {
+                e.y += e.speed;
+                ctx.fillStyle = "red";
+                ctx.fillRect(e.x, e.y, e.w, e.h);
+
+                // تصادم الطلقة مع الوحش
+                bullets.forEach((b, bi) => {
+                    if(b.x > e.x && b.x < e.x + e.w && b.y > e.y && b.y < e.y + e.h) {
+                        enemies.splice(i, 1);
+                        bullets.splice(bi, 1);
+                        score += 10;
+                    }
+                });
+
+                if(e.y > canvas.height) enemies.splice(i, 1);
+            });
+
+            ctx.fillStyle = "white";
+            ctx.fillText("Score: " + score, 10, 20);
+            requestAnimationFrame(draw);
         }
 
-        update();
+        window.addEventListener('keydown', e => {
+            if(e.key === "ArrowLeft" && ship.x > 0) ship.x -= ship.speed;
+            if(e.key === "ArrowRight" && ship.x < canvas.width - 50) ship.x += ship.speed;
+            if(e.key === " ") bullets.push({ x: ship.x + 22, y: ship.y });
+        });
+
+        draw();
     </script>
 
     <script type='text/javascript' src='//pl28850103.effectivegatecpm.com/6c/f2/31/6cf2317723a650167c4a3465573e6976.js'></script>
-    </body>
+
+</body>
 </html>
