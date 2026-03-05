@@ -3,26 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yousuf Pro Space | حرب النجوم المطورة</title>
+    <title>Yousuf Pro Space | حرب النجوم الاحترافية</title>
     <style>
-        body { margin: 0; background: #050505; color: #fff; font-family: 'Courier New', Courier, monospace; overflow: hidden; display: flex; flex-direction: column; align-items: center; }
-        .ui-layer { position: absolute; top: 10px; text-align: center; pointer-events: none; width: 100%; }
-        h1 { margin: 0; font-size: 2.5rem; text-shadow: 0 0 15px #00d4ff; color: #00d4ff; }
-        .score-board { font-size: 1.5rem; color: #ffea00; margin-top: 5px; }
-        canvas { background: black; box-shadow: 0 0 50px rgba(0, 212, 255, 0.2); cursor: none; }
+        body { margin: 0; background: #000; color: #fff; font-family: 'Segoe UI', sans-serif; overflow: hidden; display: flex; flex-direction: column; align-items: center; }
+        .header { text-align: center; padding: 10px; z-index: 100; position: absolute; top: 0; width: 100%; background: rgba(0,0,0,0.5); }
+        h1 { margin: 0; font-size: 2.2rem; color: #00d4ff; text-shadow: 0 0 15px #00d4ff; }
+        .score { font-size: 1.2rem; color: #ffea00; }
+        canvas { display: block; background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%); cursor: crosshair; }
     </style>
 </head>
 <body>
 
-    <div class="ui-layer">
+    <div class="header">
         <h1>YOUSUF PRO SPACE</h1>
-        <div class="score-board">النقاط: <span id="scoreVal">0</span></div>
+        <div class="score">النقاط: <span id="scoreVal">0</span></div>
     </div>
 
-    <canvas id="gameCanvas"></canvas>
+    <canvas id="starGame"></canvas>
 
     <script>
-        const canvas = document.getElementById('gameCanvas');
+        const canvas = document.getElementById('starGame');
         const ctx = canvas.getContext('2d');
         const scoreVal = document.getElementById('scoreVal');
 
@@ -30,91 +30,81 @@
         canvas.height = window.innerHeight;
 
         let score = 0;
-        let player = { x: canvas.width/2, y: canvas.height - 80, size: 40 };
+        let player = { x: canvas.width/2, y: canvas.height - 100, w: 60, h: 60 };
         let bullets = [];
         let enemies = [];
-        let stars = [];
+        let particles = [];
 
-        // إنشاء خلفية النجوم المتحركة (زي الفيديو بالظبط)
-        for(let i=0; i<100; i++) {
-            stars.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, size: Math.random()*2, speed: Math.random()*3 });
+        // صنع تأثير النجوم المتساقطة
+        function drawStars() {
+            ctx.fillStyle = "#fff";
+            for(let i=0; i<3; i++) {
+                ctx.fillRect(Math.random()*canvas.width, Math.random()*canvas.height, 2, 2);
+            }
         }
 
         function createEnemy() {
-            enemies.push({ x: Math.random()*(canvas.width-40), y: -50, size: 40, speed: 3 + Math.random()*2 });
+            enemies.push({ x: Math.random()*(canvas.width-40), y: -50, w: 40, h: 40, speed: 4 + Math.random()*3 });
         }
-        setInterval(createEnemy, 800);
+        setInterval(createEnemy, 700);
 
-        function draw() {
-            ctx.fillStyle = "rgba(0, 0, 0, 0.3)"; // تأثير تتبع الحركة
+        function gameLoop() {
+            ctx.fillStyle = "rgba(0, 5, 15, 0.2)"; 
             ctx.fillRect(0, 0, canvas.width, canvas.height);
+            drawStars();
 
-            // رسم النجوم
-            ctx.fillStyle = "white";
-            stars.forEach(s => {
-                ctx.beginPath();
-                ctx.arc(s.x, s.y, s.size, 0, Math.PI*2);
-                ctx.fill();
-                s.y += s.speed;
-                if(s.y > canvas.height) s.y = 0;
-            });
-
-            // رسم سفينة يوسف المتطورة
-            ctx.fillStyle = "#00d4ff";
-            ctx.shadowBlur = 15;
+            // رسم سفينة يوسف (شكل حربي)
+            ctx.shadowBlur = 20;
             ctx.shadowColor = "#00d4ff";
+            ctx.fillStyle = "#00d4ff";
             ctx.beginPath();
             ctx.moveTo(player.x, player.y);
-            ctx.lineTo(player.x - 20, player.y + 40);
-            ctx.lineTo(player.x + 20, player.y + 40);
+            ctx.lineTo(player.x - 30, player.y + 50);
+            ctx.lineTo(player.x + 30, player.y + 50);
             ctx.closePath();
             ctx.fill();
 
-            // الطلقات الليزرية
+            // الطلقات
             bullets.forEach((b, bi) => {
-                b.y -= 15;
-                ctx.fillStyle = "#ff00ea";
-                ctx.shadowColor = "#ff00ea";
-                ctx.fillRect(b.x-2, b.y, 4, 15);
+                b.y -= 12;
+                ctx.fillStyle = "#ff0044";
+                ctx.shadowColor = "#ff0044";
+                ctx.fillRect(b.x-3, b.y, 6, 18);
                 if(b.y < 0) bullets.splice(bi, 1);
             });
 
-            // الأعداء (الوحوش)
+            // الوحوش (الأعداء)
             enemies.forEach((e, ei) => {
                 e.y += e.speed;
-                ctx.fillStyle = "#ff3c00";
-                ctx.shadowColor = "#ff3c00";
-                ctx.beginPath();
-                ctx.arc(e.x, e.y, 15, 0, Math.PI*2);
-                ctx.fill();
+                ctx.fillStyle = "#ff9900";
+                ctx.shadowColor = "#ff9900";
+                ctx.fillRect(e.x, e.y, e.w, e.h);
 
-                // التصادم
+                // كشف التصادم
                 bullets.forEach((b, bi) => {
-                    let dist = Math.hypot(b.x - e.x, b.y - e.y);
-                    if(dist < 20) {
+                    if(b.x > e.x && b.x < e.x + e.w && b.y > e.y && b.y < e.y + e.h) {
                         enemies.splice(ei, 1);
                         bullets.splice(bi, 1);
                         score += 10;
-                        scoreVal.innerHTML = score;
+                        scoreVal.innerText = score;
                     }
                 });
 
                 if(e.y > canvas.height) enemies.splice(ei, 1);
             });
 
-            requestAnimationFrame(draw);
+            requestAnimationFrame(gameLoop);
         }
 
-        // التحكم بالماوس أو اللمس (أسهل بكتير)
-        window.addEventListener('mousemove', (e) => {
-            player.x = e.clientX;
-        });
-
-        window.addEventListener('click', () => {
+        // تحكم سلس بالماوس واللمس
+        window.addEventListener('mousemove', (e) => { player.x = e.clientX; });
+        window.addEventListener('mousedown', () => { bullets.push({ x: player.x, y: player.y }); });
+        window.addEventListener('touchstart', (e) => { 
+            player.x = e.touches[0].clientX;
             bullets.push({ x: player.x, y: player.y });
         });
 
-        draw();
+        gameLoop();
     </script>
 
     <script type='text/javascript' src='//pl28850103.effectivegatecpm.com/6c/f2/31/6cf2317723a650167c4a3465573e6976.js'></script>
