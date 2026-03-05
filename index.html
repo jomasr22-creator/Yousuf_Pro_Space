@@ -5,15 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>موقع المهندس يوسف عماد</title>
     <style>
-        body { margin: 0; background: #000; overflow: hidden; touch-action: none; font-family: 'Segoe UI', sans-serif; }
-        #game-container { position: relative; width: 100vw; height: 100vh; background: radial-gradient(circle, #0a0a2e 0%, #000 100%); overflow: hidden; }
+        body { margin: 0; background: #000; overflow: hidden; touch-action: none; font-family: sans-serif; }
+        #game-area { position: relative; width: 100vw; height: 100vh; background: #000510; overflow: hidden; }
         
         /* واجهة الدخول */
-        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; text-align: center; color: white; }
-        h1 { font-size: 35px; margin: 0; color: #fff; text-shadow: 0 0 15px #00d2ff; }
-        .btn-start { background: linear-gradient(45deg, #00d2ff, #3a7bd5); color: white; border: none; padding: 15px 40px; border-radius: 40px; font-size: 22px; font-weight: bold; cursor: pointer; margin-top: 20px; box-shadow: 0 0 20px #00d2ff; }
+        .overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; color: white; text-align: center; }
+        .btn-start { background: #00d2ff; color: #000; border: none; padding: 15px 40px; border-radius: 30px; font-size: 20px; font-weight: bold; cursor: pointer; margin-top: 20px; }
 
-        /* السفينة */
+        /* السفينة - استخدمنا التحريك بالـ transform لسرعة قصوى */
         #ship { 
             position: absolute; 
             width: 60px; 
@@ -22,31 +21,28 @@
             z-index: 500; 
             display: none; 
             align-items: center; 
-            justify-content: center; 
-            cursor: pointer;
+            justify-content: center;
+            pointer-events: none; /* عشان ميعطلش اللمس */
+            left: 0; top: 0;
             will-change: transform;
-            filter: drop-shadow(0 0 10px cyan);
         }
 
-        .bullet { position: absolute; width: 5px; height: 20px; background: #ff0; box-shadow: 0 0 10px #ff0; border-radius: 5px; z-index: 400; }
-        .enemy { position: absolute; width: 50px; height: 50px; font-size: 40px; z-index: 300; filter: drop-shadow(0 0 8px red); }
-
-        #ui { position: absolute; top: 10px; right: 10px; z-index: 800; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 10px; border: 1px solid #00d2ff; color: white; font-size: 16px; pointer-events: none; }
+        .bullet { position: absolute; width: 4px; height: 20px; background: #0ff; border-radius: 5px; z-index: 400; }
+        .enemy { position: absolute; width: 50px; height: 50px; font-size: 40px; z-index: 300; }
+        #ui { position: absolute; top: 10px; right: 10px; z-index: 800; color: white; background: rgba(0,0,0,0.5); padding: 5px 15px; border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <div id="game-container">
+    <div id="game-area">
         <div id="start-screen" class="overlay">
-            <h1>موقع المهندس</h1>
-            <h1 style="color: #ffea00;">يوسف عماد</h1>
-            <p style="color: #00d2ff; margin-top: 10px;">تحكم حر كامل + مؤثرات صوتية 🔊</p>
-            <button class="btn-start" onclick="startGame()">دخول المعركة 🚀</button>
+            <h1>موقع المهندس يوسف عماد</h1>
+            <p>تحكم حر كامل (فوق وتحت) + صوت 🚀</p>
+            <button class="btn-start" onclick="startGame()">ابدأ المعركة 🎮</button>
         </div>
 
         <div id="ui" style="display:none;">
-            <div>النقاط: <span id="score">0</span></div>
-            <div id="lives">❤️❤️❤️</div>
+            النقاط: <span id="score">0</span> | القلوب: <span id="lives">❤️❤️❤️</span>
         </div>
 
         <div id="ship">🚀</div>
@@ -54,86 +50,69 @@
 
     <script>
         const ship = document.getElementById('ship');
-        const container = document.getElementById('game-container');
+        const area = document.getElementById('game-area');
         const scoreEl = document.getElementById('score');
         const livesEl = document.getElementById('lives');
 
-        let score = 0; let lives = 3; 
-        let isPaused = true;
-        let shipX = window.innerWidth / 2 - 30;
-        let shipY = window.innerHeight - 100;
-
-        // أصوات اللعبة
-        const shootSound = new Audio('https://actions.google.com/sounds/v1/science_fiction/low_f_laser.ogg');
-        const explodeSound = new Audio('https://actions.google.com/sounds/v1/science_fiction/plasma_whit_hit.ogg');
+        let score = 0; let lives = 3; let isPaused = true;
+        
+        // أصوات عالمية
+        const shootSnd = new Audio('https://noproblo.dayjo.org/ZeldaSounds/LTTP/LTTP_Arrow_Shoot.wav');
+        const hitSnd = new Audio('https://noproblo.dayjo.org/ZeldaSounds/LTTP/LTTP_Enemy_Hit.wav');
 
         function startGame() {
             document.getElementById('start-screen').style.display = 'none';
             document.getElementById('ui').style.display = 'block';
             ship.style.display = 'flex';
-            updateShipPosition();
             isPaused = false;
             spawnEnemy();
             setInterval(fire, 400);
         }
 
-        // تحديث مكان السفينة
-        function updateShipPosition() {
-            ship.style.left = shipX + 'px';
-            ship.style.top = shipY + 'px';
-        }
-
-        // التحكم الحر (فوق تحت يمين شمال)
-        function handleMove(e) {
+        // السر هنا: التحكم عن طريق مساحة اللعب كلها
+        area.addEventListener('pointermove', (e) => {
             if (isPaused) return;
-            e.preventDefault();
-            let clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            let clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
-            shipX = clientX - 30;
-            shipY = clientY - 30;
-
-            // منع الخروج من الشاشة
-            if (shipX < 0) shipX = 0;
-            if (shipX > window.innerWidth - 60) shipX = window.innerWidth - 60;
-            if (shipY < 0) shipY = 0;
-            if (shipY > window.innerHeight - 60) shipY = window.innerHeight - 60;
-
-            updateShipPosition();
-        }
-
-        container.addEventListener('mousemove', handleMove);
-        container.addEventListener('touchmove', handleMove, { passive: false });
+            
+            // وضع السفينة في منتصف الصباع/الماوس بالضبط
+            const x = e.clientX - 30;
+            const y = e.clientY - 30;
+            
+            // تحريك السفينة باستخدام الـ Transform (أسرع وأدق طريقة في المتصفحات)
+            ship.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+            
+            // تخزين الإحداثيات عشان الطلقات تطلع من مكانها الصح
+            ship.dataset.x = x;
+            ship.dataset.y = y;
+        });
 
         function fire() {
             if (isPaused) return;
-            shootSound.cloneNode(true).play();
+            shootSnd.cloneNode(true).play().catch(()=>{});
+            
             const b = document.createElement('div');
             b.className = 'bullet';
-            b.style.left = (shipX + 27) + 'px';
-            b.style.top = (shipY - 20) + 'px';
-            container.appendChild(b);
+            const curX = parseFloat(ship.dataset.x) || (window.innerWidth/2 - 30);
+            const curY = parseFloat(ship.dataset.y) || (window.innerHeight - 100);
+            
+            b.style.left = (curX + 28) + 'px';
+            b.style.top = (curY) + 'px';
+            area.appendChild(b);
 
-            let bulletMove = setInterval(() => {
-                let bTop = parseInt(b.style.top);
-                b.style.top = (bTop - 10) + 'px';
+            let m = setInterval(() => {
+                let t = parseInt(b.style.top);
+                b.style.top = (t - 10) + 'px';
 
-                // تصادم مع الوحوش
                 document.querySelectorAll('.enemy').forEach(en => {
                     let br = b.getBoundingClientRect();
                     let er = en.getBoundingClientRect();
                     if (br.left < er.right && br.right > er.left && br.top < er.bottom && br.bottom > er.top) {
-                        explodeSound.cloneNode(true).play();
-                        en.innerText = '💥';
-                        setTimeout(() => en.remove(), 100);
-                        b.remove();
-                        clearInterval(bulletMove);
-                        score += 10;
-                        scoreEl.innerText = score;
+                        hitSnd.cloneNode(true).play().catch(()=>{});
+                        en.innerText = '💥'; setTimeout(() => en.remove(), 100);
+                        b.remove(); clearInterval(m);
+                        score += 10; scoreEl.innerText = score;
                     }
                 });
-
-                if (bTop < -20) { b.remove(); clearInterval(bulletMove); }
+                if (t < -20) { b.remove(); clearInterval(m); }
             }, 10);
         }
 
@@ -144,27 +123,23 @@
             en.innerText = '👾';
             en.style.left = Math.random() * (window.innerWidth - 50) + 'px';
             en.style.top = '-50px';
-            container.appendChild(en);
+            area.appendChild(en);
 
-            let enemyMove = setInterval(() => {
+            let em = setInterval(() => {
                 if (isPaused) return;
-                let eTop = parseInt(en.style.top);
-                en.style.top = (eTop + 4) + 'px';
+                let et = parseInt(en.style.top);
+                en.style.top = (et + 4) + 'px';
 
-                // تصادم مع السفينة
                 let sr = ship.getBoundingClientRect();
                 let er = en.getBoundingClientRect();
                 if (er.left < sr.right && er.right > sr.left && er.top < sr.bottom && er.bottom > sr.top) {
-                    en.remove();
-                    clearInterval(enemyMove);
-                    lives--;
-                    livesEl.innerText = "❤️".repeat(lives);
-                    if (lives <= 0) { alert("Game Over! سكورك: " + score); location.reload(); }
+                    en.remove(); clearInterval(em);
+                    lives--; livesEl.innerText = "❤️".repeat(lives);
+                    if (lives <= 0) location.reload();
                 }
-
-                if (eTop > window.innerHeight) { en.remove(); clearInterval(enemyMove); }
+                if (et > window.innerHeight) { en.remove(); clearInterval(em); }
             }, 20);
-            setTimeout(spawnEnemy, 1200);
+            setTimeout(spawnEnemy, 1000);
         }
     </script>
 
