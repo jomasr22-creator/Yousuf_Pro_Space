@@ -3,20 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yousuf Pro Space | حرب النجوم الاحترافية</title>
+    <title>Yousuf Emad Space | حرب النجوم</title>
     <style>
         body { margin: 0; background: #000; color: #fff; font-family: 'Segoe UI', sans-serif; overflow: hidden; display: flex; flex-direction: column; align-items: center; }
-        .header { text-align: center; padding: 10px; z-index: 100; position: absolute; top: 0; width: 100%; background: rgba(0,0,0,0.5); }
-        h1 { margin: 0; font-size: 2.2rem; color: #00d4ff; text-shadow: 0 0 15px #00d4ff; }
-        .score { font-size: 1.2rem; color: #ffea00; }
-        canvas { display: block; background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%); cursor: crosshair; }
+        .header { text-align: center; padding: 15px; z-index: 100; position: absolute; top: 0; width: 100%; background: rgba(0,0,0,0.6); border-bottom: 2px solid #00d4ff; }
+        
+        /* تعديل الاسم ليصبح يوسف عماد مع تأثيرات قوية */
+        h1 { margin: 0; font-size: 2.8rem; color: #fff; text-shadow: 0 0 10px #00d4ff, 0 0 20px #00d4ff, 0 0 40px #00d4ff; letter-spacing: 2px; }
+        .user-name { color: #ffea00; text-shadow: 0 0 10px #ffea00; }
+        
+        .score { font-size: 1.4rem; color: #fff; margin-top: 5px; }
+        canvas { display: block; background: radial-gradient(circle at center, #1B2735 0%, #000 100%); cursor: crosshair; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>YOUSUF PRO SPACE</h1>
-        <div class="score">النقاط: <span id="scoreVal">0</span></div>
+        <h1>YOUSUF <span class="user-name">EMAD</span> SPACE</h1>
+        <div class="score">نقاط البطل: <span id="scoreVal">0</span></div>
     </div>
 
     <canvas id="starGame"></canvas>
@@ -30,57 +34,44 @@
         canvas.height = window.innerHeight;
 
         let score = 0;
-        let player = { x: canvas.width/2, y: canvas.height - 100, w: 60, h: 60 };
+        let player = { x: canvas.width/2, y: canvas.height - 100 };
         let bullets = [];
         let enemies = [];
-        let particles = [];
-
-        // صنع تأثير النجوم المتساقطة
-        function drawStars() {
-            ctx.fillStyle = "#fff";
-            for(let i=0; i<3; i++) {
-                ctx.fillRect(Math.random()*canvas.width, Math.random()*canvas.height, 2, 2);
-            }
-        }
 
         function createEnemy() {
-            enemies.push({ x: Math.random()*(canvas.width-40), y: -50, w: 40, h: 40, speed: 4 + Math.random()*3 });
+            enemies.push({ x: Math.random()*(canvas.width-40), y: -50, w: 40, h: 40, speed: 5 });
         }
-        setInterval(createEnemy, 700);
+        setInterval(createEnemy, 600);
 
         function gameLoop() {
-            ctx.fillStyle = "rgba(0, 5, 15, 0.2)"; 
+            ctx.fillStyle = "rgba(0, 0, 0, 0.2)"; 
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            drawStars();
 
-            // رسم سفينة يوسف (شكل حربي)
+            // رسم سفينة حربية متطورة
             ctx.shadowBlur = 20;
             ctx.shadowColor = "#00d4ff";
             ctx.fillStyle = "#00d4ff";
             ctx.beginPath();
             ctx.moveTo(player.x, player.y);
-            ctx.lineTo(player.x - 30, player.y + 50);
-            ctx.lineTo(player.x + 30, player.y + 50);
+            ctx.lineTo(player.x - 25, player.y + 45);
+            ctx.lineTo(player.x + 25, player.y + 45);
             ctx.closePath();
             ctx.fill();
 
             // الطلقات
             bullets.forEach((b, bi) => {
-                b.y -= 12;
-                ctx.fillStyle = "#ff0044";
-                ctx.shadowColor = "#ff0044";
-                ctx.fillRect(b.x-3, b.y, 6, 18);
+                b.y -= 15;
+                ctx.fillStyle = "#ff00ea";
+                ctx.fillRect(b.x-2, b.y, 5, 15);
                 if(b.y < 0) bullets.splice(bi, 1);
             });
 
-            // الوحوش (الأعداء)
+            // الوحوش
             enemies.forEach((e, ei) => {
                 e.y += e.speed;
-                ctx.fillStyle = "#ff9900";
-                ctx.shadowColor = "#ff9900";
+                ctx.fillStyle = "#ff3300";
                 ctx.fillRect(e.x, e.y, e.w, e.h);
 
-                // كشف التصادم
                 bullets.forEach((b, bi) => {
                     if(b.x > e.x && b.x < e.x + e.w && b.y > e.y && b.y < e.y + e.h) {
                         enemies.splice(ei, 1);
@@ -89,21 +80,15 @@
                         scoreVal.innerText = score;
                     }
                 });
-
                 if(e.y > canvas.height) enemies.splice(ei, 1);
             });
 
             requestAnimationFrame(gameLoop);
         }
 
-        // تحكم سلس بالماوس واللمس
         window.addEventListener('mousemove', (e) => { player.x = e.clientX; });
         window.addEventListener('mousedown', () => { bullets.push({ x: player.x, y: player.y }); });
-        window.addEventListener('touchstart', (e) => { 
-            player.x = e.touches[0].clientX;
-            bullets.push({ x: player.x, y: player.y });
-        });
-
+        
         gameLoop();
     </script>
 
