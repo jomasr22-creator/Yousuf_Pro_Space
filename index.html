@@ -6,31 +6,73 @@
     <title>Youssef Emad Studio</title>
     <style>
         body { 
-            margin: 0; background: radial-gradient(circle, #1a1a2e, #050505); color: white; 
-            font-family: sans-serif; text-align: center; display: flex; flex-direction: column; 
+            margin: 0; background: #020205; color: white; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            text-align: center; display: flex; flex-direction: column; 
             justify-content: center; height: 100vh; overflow: hidden;
         }
-        header { padding: 20px; border-radius: 20px; border: 2px solid #00f2fe; max-width: 85%; margin: 0 auto; background: rgba(0,0,0,0.5); }
-        h1 { color: #fff; text-shadow: 0 0 10px #00f2fe, 0 0 20px #00f2fe; margin: 10px 0; font-size: 1.8em; }
-        .play-btn { background: #00f2fe; color: black; border: none; padding: 15px 30px; border-radius: 30px; cursor: pointer; font-weight: bold; box-shadow: 0 0 15px #00f2fe; margin-top: 15px; }
+
+        /* تأثير النجوم المتحركة في الخلفية */
+        #star-field {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            background: black;
+        }
+        .star {
+            position: absolute; background: white; border-radius: 50%;
+            opacity: 0.8; animation: travel linear infinite;
+        }
+        @keyframes travel {
+            from { transform: translateY(-10vh); opacity: 0; }
+            50% { opacity: 1; }
+            to { transform: translateY(110vh); opacity: 0; }
+        }
+
+        header { 
+            padding: 30px; border-radius: 25px; border: 2px solid #00f2fe; 
+            max-width: 80%; margin: 0 auto; background: rgba(0, 0, 0, 0.6); 
+            backdrop-filter: blur(10px); box-shadow: 0 0 30px rgba(0, 242, 254, 0.3);
+        }
+        h1 { 
+            color: #fff; text-shadow: 0 0 15px #00f2fe, 0 0 30px #00f2fe; 
+            margin: 10px 0; font-size: 2.2em; letter-spacing: 2px;
+        }
+        p { opacity: 0.8; font-size: 1.1em; }
+        .play-btn { 
+            background: linear-gradient(45deg, #00f2fe, #4facfe); color: black; 
+            border: none; padding: 18px 40px; border-radius: 50px; cursor: pointer; 
+            font-weight: bold; font-size: 1.2em; box-shadow: 0 5px 20px rgba(0, 242, 254, 0.5);
+            transition: 0.3s; margin-top: 20px;
+        }
+        .play-btn:hover { transform: scale(1.1); box-shadow: 0 5px 30px #00f2fe; }
+
         #game-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; }
-        #game-canvas { width: 100%; height: 100%; position: relative; overflow: hidden; background: #050505; }
-        #ship { position: absolute; bottom: 30px; left: 50%; font-size: 45px; transform: translateX(-50%); }
-        .bullet { position: absolute; width: 5px; height: 15px; background: #ffff00; box-shadow: 0 0 8px #ffff00; }
-        .enemy { position: absolute; font-size: 35px; }
-        #score { position: absolute; top: 20px; right: 20px; color: #00f2fe; font-size: 24px; font-weight: bold; z-index: 10000; }
-        #close-btn { position: absolute; top: 10px; left: 10px; background: #ff4d4d; color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; z-index: 10001; }
+        #game-canvas { width: 100%; height: 100%; position: relative; overflow: hidden; cursor: crosshair; }
+        
+        /* تصميم السفينة الجديد */
+        #ship { 
+            position: absolute; bottom: 40px; left: 50%; font-size: 55px; 
+            transform: translateX(-50%); z-index: 10;
+            filter: drop-shadow(0 0 10px #4facfe);
+            transition: transform 0.1s;
+        }
+        
+        .bullet { position: absolute; width: 6px; height: 20px; background: #00f2fe; border-radius: 5px; box-shadow: 0 0 10px #00f2fe; }
+        .enemy { position: absolute; font-size: 40px; filter: drop-shadow(0 0 5px red); }
+        #score { position: absolute; top: 30px; right: 30px; color: #4facfe; font-size: 28px; font-weight: bold; z-index: 10000; text-shadow: 0 0 10px #000; }
+        #close-btn { position: absolute; top: 20px; left: 20px; background: rgba(255, 77, 77, 0.8); color: white; border: none; padding: 12px 20px; border-radius: 12px; cursor: pointer; z-index: 10001; font-weight: bold; }
     </style>
 </head>
 <body>
+    <div id="star-field"></div>
+
     <header>
         <h1>YOUSSEF EMAD STUDIO</h1>
-        <p>مبرمج واجهات وألعاب تفاعلية محترف</p>
-        <button class="play-btn" onclick="openGame()">العب الآن 🚀</button>
+        <p>تصميم واجهات وتطوير ألعاب إبداعية</p>
+        <button class="play-btn" onclick="openGame()">ابدأ المهمة 🚀</button>
     </header>
 
     <div id="game-modal">
-        <button id="close-btn" onclick="location.reload()">إغلاق X</button>
+        <button id="close-btn" onclick="location.reload()">إنهاء المهمة X</button>
         <div id="game-canvas">
             <div id="score">النقاط: <span id="pts">0</span></div>
             <div id="ship">🚀</div>
@@ -38,6 +80,19 @@
     </div>
 
     <script>
+        // برمجة النجوم المتحركة
+        const field = document.getElementById('star-field');
+        for (let i = 0; i < 150; i++) {
+            const s = document.createElement('div');
+            s.className = 'star';
+            const size = Math.random() * 3 + 'px';
+            s.style.width = size; s.style.height = size;
+            s.style.left = Math.random() * 100 + 'vw';
+            s.style.animationDuration = (Math.random() * 2 + 1) + 's';
+            s.style.animationDelay = Math.random() * 5 + 's';
+            field.appendChild(s);
+        }
+
         let gameActive = false;
         function openGame() {
             document.getElementById('game-modal').style.display = 'block';
@@ -49,23 +104,25 @@
             const move = (e) => {
                 if(!gameActive) return;
                 let x = (e.touches ? e.touches[0].clientX : e.clientX);
-                if (x > 30 && x < window.innerWidth - 30) {
-                    ship.style.left = (x - 22) + 'px';
+                // منع السفينة من الخروج عن الشاشة
+                if (x > 40 && x < window.innerWidth - 40) {
+                    ship.style.left = (x) + 'px';
                 }
             };
             canvas.addEventListener('mousemove', move);
-            canvas.addEventListener('touchmove', move, {passive: false});
+            canvas.addEventListener('touchmove', (e) => { move(e); e.preventDefault(); }, {passive: false});
 
+            // إطلاق الليزر
             setInterval(() => {
                 if(!gameActive) return;
                 const b = document.createElement('div');
                 b.className = 'bullet';
-                b.style.left = (ship.offsetLeft + 20) + 'px';
-                b.style.bottom = '80px';
+                b.style.left = (ship.offsetLeft - 3) + 'px';
+                b.style.bottom = '100px';
                 canvas.appendChild(b);
                 let bMove = setInterval(() => {
                     let bBottom = parseInt(b.style.bottom);
-                    b.style.bottom = (bBottom + 15) + 'px';
+                    b.style.bottom = (bBottom + 18) + 'px';
                     if(bBottom > window.innerHeight) { b.remove(); clearInterval(bMove); }
                     document.querySelectorAll('.enemy').forEach(en => {
                         let r1 = b.getBoundingClientRect(), r2 = en.getBoundingClientRect();
@@ -75,25 +132,27 @@
                         }
                     });
                 }, 20);
-            }, 350);
+            }, 300);
 
+            // ظهور الوحوش
             setInterval(() => {
                 if(!gameActive) return;
                 const en = document.createElement('div');
-                en.className = 'enemy'; en.innerText = '👾';
-                en.style.left = Math.random() * (window.innerWidth - 50) + 25 + 'px';
-                en.style.top = '-50px';
+                en.className = 'enemy'; 
+                en.innerText = (Math.random() > 0.5 ? '👾' : '🛸');
+                en.style.left = Math.random() * (window.innerWidth - 60) + 30 + 'px';
+                en.style.top = '-60px';
                 canvas.appendChild(en);
                 let eMove = setInterval(() => {
                     let eTop = parseInt(en.style.top);
-                    en.style.top = (eTop + 6) + 'px';
+                    en.style.top = (eTop + 7) + 'px';
                     let r1 = en.getBoundingClientRect(), r2 = ship.getBoundingClientRect();
                     if(!(r1.right < r2.left || r1.left > r2.right || r1.bottom < r2.top || r1.top > r2.bottom)) {
-                        gameActive = false; alert("انتهت اللعبة! نقاطك: " + score); location.reload();
+                        gameActive = false; alert("تحطمت السفينة! مجموع نقاطك: " + score); location.reload();
                     }
                     if(eTop > window.innerHeight) { en.remove(); clearInterval(eMove); }
                 }, 30);
-            }, 1000);
+            }, 800);
         }
     </script>
 </body>
