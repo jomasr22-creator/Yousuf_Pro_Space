@@ -3,72 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yousuf Pro Space | الأرباح واللعب</title>
+    <title>Yousuf Pro Space</title>
     <style>
-        /* التنسيق الاحترافي الكامل للموقع */
+        /* كل التصميم هنا عشان متبقاش محتاج ملف CSS */
         body {
             margin: 0;
-            padding: 0;
-            background: radial-gradient(circle, #1a1a2e 0%, #0f0f1a 100%);
-            color: #ffffff;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000;
+            color: white;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
+            font-family: Arial, sans-serif;
             overflow: hidden;
         }
-
-        .hero-section {
-            text-align: center;
-            z-index: 1;
-        }
-
-        h1 {
-            font-size: 4rem;
-            margin: 0;
-            text-shadow: 0 0 20px #00d4ff;
-            animation: glow 2s infinite alternate;
-        }
-
-        p {
-            font-size: 1.8rem;
-            color: #bdc3c7;
-        }
-
-        .highlight {
-            background: linear-gradient(90deg, #00d4ff, #0055ff);
-            padding: 5px 15px;
-            border-radius: 10px;
-            color: white;
-        }
-
-        #game-canvas {
-            border: 2px solid #00d4ff;
-            border-radius: 15px;
-            box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
-            margin-top: 20px;
-            background: #000;
-        }
-
-        @keyframes glow {
-            from { text-shadow: 0 0 10px #00d4ff; }
-            to { text-shadow: 0 0 30px #00d4ff, 0 0 40px #0055ff; }
+        h1 { font-size: 2.5rem; text-shadow: 0 0 10px #00d4ff; margin: 10px; }
+        .highlight { background: #00d4ff; padding: 2px 8px; border-radius: 5px; color: black; }
+        #gameCanvas {
+            border: 3px solid #00d4ff;
+            background: #050505;
+            box-shadow: 0 0 20px #00d4ff;
+            max-width: 90%;
+            max-height: 60vh;
         }
     </style>
 </head>
 <body>
 
-    <div class="hero-section">
-        <h1>Yousuf Pro Space</h1>
-        <p>استمتع <span class="highlight">باللعبة</span> الآن واكسب التحدي!</p>
-    </div>
+    <h1>Yousuf Pro Space</h1>
+    <p>استمتع <span class="highlight">باللعبة</span> الآن واجمع النقاط!</p>
 
-    <canvas id="game-canvas" width="800" height="400"></canvas>
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
 
-    <script src="script.js"></script>
+    <script>
+        // كود اللعبة كامل هنا عشان متبقاش محتاج ملف script.js
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        let x = canvas.width / 2;
+        let y = canvas.height - 30;
+        let dx = 2;
+        let dy = -2;
+
+        function drawBall() {
+            ctx.beginPath();
+            ctx.arc(x, y, 10, 0, Math.PI*2);
+            ctx.fillStyle = "#00d4ff";
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBall();
+            if(x + dx > canvas.width-10 || x + dx < 10) dx = -dx;
+            if(y + dy > canvas.height-10 || y + dy < 10) dy = -dy;
+            x += dx;
+            y += dy;
+            requestAnimationFrame(draw);
+        }
+        draw();
+    </script>
 
     <script type='text/javascript' src='//pl28850103.effectivegatecpm.com/6c/f2/31/6cf2317723a650167c4a3465573e6976.js'></script>
-    </body>
+
+</body>
 </html>
