@@ -3,80 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yousuf Pro Studio | المعرض واللعبة</title>
+    <title>Yousuf Pro Studio</title>
     <style>
-        :root { --neon: #00f2fe; --purple: #7117ea; --dark: #050505; }
-        body { margin: 0; background: var(--dark); color: white; font-family: sans-serif; overflow-x: hidden; }
-        
-        /* تصميم المعرض */
-        header { text-align: center; padding: 50px 20px; background: radial-gradient(circle, #1a1a2e, #050505); }
-        h1 { font-size: 2.5rem; text-shadow: 0 0 15px var(--neon); color: white; }
-        
-        .portfolio-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; padding: 30px; max-width: 1100px; margin: 0 auto; }
-        .card { background: #111; border: 1px solid #333; padding: 20px; border-radius: 15px; text-align: center; transition: 0.3s; }
-        .card:hover { border-color: var(--neon); transform: translateY(-5px); box-shadow: 0 0 20px rgba(0, 242, 254, 0.2); }
-        
-        .play-btn { background: var(--neon); color: #000; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; margin-top: 15px; }
-
-        /* نافذة اللعبة (تظهر فوق المعرض) */
-        #game-modal { 
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: #000; z-index: 9999; 
-        }
-        #close-game { position: absolute; top: 10px; left: 10px; background: red; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; z-index: 10001; }
-        
-        /* كود اللعبة (CSS مدمج) */
-        #game-canvas { width: 100%; height: 100%; position: relative; overflow: hidden; background: #000; }
-        #ship { position: absolute; bottom: 30px; left: 50%; width: 50px; height: 50px; font-size: 40px; transform: translateX(-50%); z-index: 100; touch-action: none; }
-        .bullet { position: absolute; width: 4px; height: 15px; background: yellow; border-radius: 2px; }
-        .enemy { position: absolute; width: 40px; height: 40px; font-size: 30px; }
-        #score-board { position: absolute; top: 20px; right: 20px; font-size: 20px; color: gold; z-index: 1000; }
+        body { margin: 0; background: #050505; color: white; font-family: sans-serif; text-align: center; }
+        header { padding: 50px; background: radial-gradient(circle, #1a1a2e, #050505); }
+        h1 { color: #00f2fe; text-shadow: 0 0 10px #00f2fe; }
+        .card { background: #111; border: 1px solid #333; padding: 20px; border-radius: 15px; max-width: 300px; margin: 20px auto; }
+        .play-btn { background: #00f2fe; color: black; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        #game-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; }
+        #game-canvas { width: 100%; height: 100%; position: relative; overflow: hidden; }
+        #ship { position: absolute; bottom: 30px; left: 50%; font-size: 40px; transform: translateX(-50%); }
+        .bullet { position: absolute; width: 4px; height: 15px; background: yellow; }
+        .enemy { position: absolute; font-size: 30px; }
+        #score { position: absolute; top: 20px; right: 20px; color: gold; font-size: 20px; }
+        #close-btn { position: absolute; top: 10px; left: 10px; background: red; color: white; border: none; padding: 10px; cursor: pointer; z-index: 10001; }
     </style>
 </head>
 <body>
-
     <header>
         <h1>YOUSUF PRO STUDIO</h1>
-        <p>برمجة واجهات وألعاب تفاعلية</p>
+        <p>مبرمج واجهات وألعاب تفاعلية</p>
+        <div class="card">
+            <h3>🎮 لعبة غزو الفضاء</h3>
+            <button class="play-btn" onclick="openGame()">العب الآن 🚀</button>
+        </div>
     </header>
 
-    <section class="portfolio-grid">
-        <div class="card">
-            <div style="font-size: 40px;">🎮</div>
-            <h3>لعبة غزو الفضاء</h3>
-            <p>مشروع لعبة تفاعلية مبرمجة بـ JavaScript لاختبار سرعة الاستجابة.</p>
-            <button class="play-btn" onclick="openGame()">العب الآن جرب شغلي 🚀</button>
-        </div>
-        </section>
-
     <div id="game-modal">
-        <button id="close-game" onclick="closeGame()">إغلاق اللعبة X</button>
+        <button id="close-btn" onclick="location.reload()">إغلاق X</button>
         <div id="game-canvas">
-            <div id="score-board">النقاط: <span id="pts">0</span></div>
+            <div id="score">النقاط: <span id="pts">0</span></div>
             <div id="ship">🚀</div>
         </div>
     </div>
 
     <script>
-        // فتح وإغلاق اللعبة
-        let gameActive = false;
         function openGame() {
             document.getElementById('game-modal').style.display = 'block';
-            gameActive = true;
-            startGameLogic();
-        }
-        function closeGame() {
-            location.reload(); // أسهل طريقة لإيقاف كل العمليات وتصفير اللعبة
-        }
-
-        // منطق اللعبة
-        function startGameLogic() {
-            const ship = document.getElementById('ship');
             const canvas = document.getElementById('game-canvas');
+            const ship = document.getElementById('ship');
             let score = 0;
 
-            // تحريك السفينة
             const move = (e) => {
-                if(!gameActive) return;
                 let x = (e.touches ? e.touches[0].clientX : e.clientX) - 25;
-                ship.style.left
+                ship.style.left = x + 'px';
+            };
+            canvas.addEventListener('mousemove', move);
+            canvas.addEventListener('touchmove', move);
+
+            setInterval(() => {
+                const b = document.createElement('div');
+                b.className = 'bullet';
+                b.style.left = (parseInt(ship.style.left || window.innerWidth/2) + 20) + 'px';
+                b.style.bottom = '80px';
+                canvas.appendChild(b);
+                let bMove = setInterval(() => {
+                    let bBottom = parseInt(b.style.bottom);
+                    b.style.bottom = (bBottom + 10) + 'px';
+                    if(bBottom > window.innerHeight) { b.remove(); clearInterval(bMove); }
+                    document.querySelectorAll('.enemy').forEach(en => {
+                        let r1 = b.getBoundingClientRect(), r2 = en.getBoundingClientRect();
+                        if(!(r1.right < r2.left || r1.left > r2.right || r1.bottom < r2.top || r1.top > r2.bottom)) {
+                            en.innerText = '💥'; setTimeout(() => en.remove(), 100);
+                            b.remove(); score += 10; document.getElementById('pts').innerText = score;
+                        }
+                    });
+                }, 20);
+            }, 400);
+
+            setInterval(() => {
+                const en = document.createElement('div');
+                en.className = 'enemy'; en.innerText = '👾';
+                en.style.left = Math.random() * (window.innerWidth - 40) + 'px';
+                en.style.top = '-50px';
+                canvas.appendChild(en);
+                let eMove = setInterval(() => {
+                    let eTop = parseInt(en.style.top);
+                    en.style.top = (eTop + 5) + 'px';
+                    if(eTop > window.innerHeight) { en.remove(); clearInterval(eMove); }
+                }, 30);
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
