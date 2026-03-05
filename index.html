@@ -3,19 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>موقع باسم البطل: يوسف عماد</title>
+    <title>موقع المهندس يوسف عماد</title>
     <style>
         body { margin: 0; background: #000; overflow: hidden; touch-action: none; font-family: 'Segoe UI', sans-serif; color: white; }
         #game-container { position: relative; width: 100vw; height: 100vh; background: radial-gradient(circle, #0a0a2e 0%, #000 100%); overflow: hidden; }
         
-        /* واجهة الدخول - مساحة البطل: يوسف عماد */
+        /* واجهة الدخول - الاسم الجديد */
         .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 500; text-align: center; }
-        h1 { font-size: 45px; margin-bottom: 10px; color: #fff; text-shadow: 0 0 15px #00d2ff; }
+        h1 { font-size: 40px; margin-bottom: 10px; color: #fff; text-shadow: 0 0 15px #00d2ff; }
         .name-highlight { color: #ffea00; }
         .btn-start { background: linear-gradient(45deg, #00d2ff, #3a7bd5); color: white; border: none; padding: 18px 50px; border-radius: 40px; font-size: 26px; font-weight: bold; cursor: pointer; box-shadow: 0 0 25px rgba(0,210,255,0.6); margin-top: 20px; transition: 0.3s; }
-        .btn-start:hover { transform: scale(1.1); background: #fff; color: #000; }
 
-        /* الجرافيك واللعبة */
+        /* الجرافيك الأصلي */
         .star { position: absolute; background: white; border-radius: 50%; opacity: 0.5; animation: moveStar linear infinite; }
         @keyframes moveStar { from { transform: translateY(-100px); } to { transform: translateY(100vh); } }
         #ship { position: absolute; bottom: 40px; left: 50%; width: 70px; height: 70px; font-size: 55px; transform: translateX(-50%); z-index: 10; filter: drop-shadow(0 0 15px cyan); }
@@ -24,15 +23,17 @@
 
         /* UI اللعبة */
         #ui { position: absolute; top: 15px; right: 15px; z-index: 100; text-align: right; background: rgba(0,0,0,0.7); padding: 12px; border-radius: 15px; border: 1px solid #00d2ff; }
-        #target-ui { color: #ffa500; font-size: 14px; }
+        
+        /* زرار المشاركة */
+        #share-btn { position: fixed; bottom: 20px; left: 20px; z-index: 1000; background: #25d366; color: white; border: none; padding: 12px 22px; border-radius: 50px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body>
 
     <div id="game-container">
         <div id="start-screen" class="overlay">
-            <h1>مساحة البطل: <span class="name-highlight">يوسف عماد</span></h1>
-            <p style="font-size: 22px; color: #00d2ff;">مهمة غزو الفضاء - Star Wars</p>
+            <h1>موقع المهندس: <span class="name-highlight">يوسف عماد</span></h1>
+            <p style="font-size: 22px; color: #00d2ff;">Yousuf Pro Space - حرب النجوم</p>
             <button class="btn-start" onclick="startGame()">ابدأ اللعب الآن 🚀</button>
         </div>
 
@@ -44,12 +45,14 @@
         <div id="ui" style="display:none;">
             <div style="color:#00d2ff; font-weight: bold;">المستوى: <span id="level-num">1</span></div>
             <div>النقاط: <span id="score">0</span></div>
-            <div id="target-ui">الهدف: <span id="target-score">100</span></div>
+            <div style="color: #ffa500; font-size: 14px;">الهدف: <span id="target-score">100</span></div>
             <div id="lives" style="color:#ff4757; font-size: 20px;">❤️❤️❤️</div>
         </div>
 
         <div id="ship" style="display:none;">🚀</div>
     </div>
+
+    <button id="share-btn" onclick="shareGame()">انشر اللعبة واكسب 📢</button>
 
     <script>
         const ship = document.getElementById('ship');
@@ -154,11 +157,21 @@
                 if (er.left < sr.right && er.right > sr.left && er.top < sr.bottom && er.bottom > sr.top) {
                     en.remove(); clearInterval(moveEn);
                     lives--; livesEl.innerText = "❤️".repeat(lives);
-                    if (lives <= 0) { isGameOver = true; alert("انتهت المحاولات يا بطل! مجموع نقطك: " + score); location.reload(); }
+                    if (lives <= 0) { isGameOver = true; alert("انتهت المحاولات! سكورك: " + score); location.reload(); }
                 }
                 if (currentT > window.innerHeight) { clearInterval(moveEn); en.remove(); }
             }, 20);
             setTimeout(spawnEnemy, 1200 - (level * 100));
+        }
+
+        function shareGame() {
+            const text = "تعال العب لُعبة غزو الفضاء على موقع المهندس يوسف عماد! 🚀";
+            const url = window.location.href;
+            if (navigator.share) {
+                navigator.share({ title: 'موقع يوسف عماد', text: text, url: url });
+            } else {
+                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text + " " + url)}`, '_blank');
+            }
         }
     </script>
 
@@ -166,4 +179,3 @@
 
 </body>
 </html>
-
