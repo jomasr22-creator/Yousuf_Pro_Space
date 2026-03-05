@@ -3,25 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>موقع المهندس يوسف عماد - Galaxy Pro</title>
+    <title>موقع المهندس يوسف عماد - Chicken Pro</title>
     <style>
         body { margin: 0; background: #000; overflow: hidden; touch-action: none; font-family: 'Segoe UI', sans-serif; }
-        #game-area { position: relative; width: 100vw; height: 100vh; background: radial-gradient(circle, #000b1a 0%, #000 100%); overflow: hidden; }
+        #game-area { position: relative; width: 100vw; height: 100vh; background: #000b1a; overflow: hidden; }
         
         .overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; color: white; text-align: center; }
-        .btn-start { background: linear-gradient(45deg, #00d2ff, #3a7bd5); color: #fff; border: none; padding: 15px 45px; border-radius: 30px; font-size: 22px; font-weight: bold; cursor: pointer; margin-top: 20px; box-shadow: 0 0 20px #00d2ff; }
+        .btn-start { background: #00d2ff; color: #000; border: none; padding: 15px 45px; border-radius: 30px; font-size: 22px; font-weight: bold; cursor: pointer; }
 
-        #ship { position: absolute; width: 60px; height: 60px; font-size: 50px; z-index: 500; display: none; align-items: center; justify-content: center; left: 0; top: 0; will-change: transform; filter: drop-shadow(0 0 10px cyan); }
+        #ship { position: absolute; width: 60px; height: 60px; font-size: 50px; z-index: 500; display: none; transform: translate3d(0,0,0); pointer-events: none; }
         
-        .bullet { position: absolute; width: 4px; height: 18px; background: #0ff; border-radius: 5px; z-index: 400; box-shadow: 0 0 8px #0ff; }
-        .enemy-bullet { position: absolute; width: 5px; height: 12px; background: #ff4757; border-radius: 50%; z-index: 350; box-shadow: 0 0 10px #ff4757; }
+        .bullet { position: absolute; width: 4px; height: 18px; background: #0ff; border-radius: 5px; z-index: 400; }
+        .enemy-bullet { position: absolute; width: 6px; height: 12px; background: #f00; border-radius: 50%; z-index: 350; }
         
-        .enemy { position: absolute; width: 45px; height: 45px; font-size: 35px; z-index: 300; transition: top 1s ease-out; }
-        .powerup { position: absolute; width: 40px; height: 40px; font-size: 30px; z-index: 450; animation: bounce 1s infinite; }
+        .enemy { position: absolute; width: 40px; height: 40px; font-size: 30px; z-index: 300; transition: transform 0.1s linear; }
+        #boss { position: absolute; width: 120px; height: 120px; font-size: 100px; z-index: 600; display: none; text-align: center; }
         
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-
-        #ui { position: absolute; top: 10px; left: 10px; z-index: 800; color: white; background: rgba(0,0,0,0.6); padding: 8px 15px; border-radius: 12px; border: 1px solid #00d2ff; }
+        #ui { position: absolute; top: 10px; left: 10px; z-index: 800; color: white; background: rgba(0,0,0,0.6); padding: 10px; border-radius: 10px; border: 1px solid #00d2ff; }
+        #boss-health-bar { position: absolute; top: 50px; left: 50%; transform: translateX(-50%); width: 200px; height: 10px; background: #333; border: 2px solid #fff; display: none; z-index: 800; }
+        #boss-health-fill { width: 100%; height: 100%; background: #f00; }
     </style>
 </head>
 <body>
@@ -29,16 +29,17 @@
     <div id="game-area">
         <div id="start-screen" class="overlay">
             <h1>موقع المهندس <span style="color:#ffea00">يوسف عماد</span></h1>
-            <p style="color: #00d2ff;">نظام الكتائب: طور سلاحك واهزمهم! 🛡️</p>
-            <button class="btn-start" onclick="startGame()">ابدأ الهجوم 🚀</button>
+            <p>إصدار "غزو الفراخ" و البوس العظيم 👾</p>
+            <button class="btn-start" onclick="startGame()">ابدأ التحدي 🚀</button>
         </div>
 
         <div id="ui" style="display:none;">
             <div>النقاط: <span id="score">0</span></div>
             <div>القلوب: <span id="lives">❤️❤️❤️</span></div>
-            <div id="weapon-status" style="color:#2ecc71; font-size:12px;">سلاح عادي</div>
         </div>
 
+        <div id="boss-health-bar"><div id="boss-health-fill"></div></div>
+        <div id="boss">🛸</div>
         <div id="ship">🚀</div>
     </div>
 
@@ -47,23 +48,26 @@
         const area = document.getElementById('game-area');
         const scoreEl = document.getElementById('score');
         const livesEl = document.getElementById('lives');
-        const weaponEl = document.getElementById('weapon-status');
+        const boss = document.getElementById('boss');
+        const bossBar = document.getElementById('boss-health-bar');
+        const bossFill = document.getElementById('boss-health-fill');
 
         let score = 0; let lives = 3; let isPaused = true;
-        let isDoubleShot = false;
-        let shipX = 0, shipY = 0;
+        let isDoubleShot = false; let shipX = 0, shipY = 0;
+        let enemies = []; let enemyDirection = 1; let enemySpeed = 2;
+        let bossActive = false; let bossHealth = 100;
 
         const shootSnd = new Audio('https://noproblo.dayjo.org/ZeldaSounds/LTTP/LTTP_Arrow_Shoot.wav');
-        const powerSnd = new Audio('https://noproblo.dayjo.org/ZeldaSounds/LTTP/LTTP_Item.wav');
 
         function startGame() {
             document.getElementById('start-screen').style.display = 'none';
             document.getElementById('ui').style.display = 'block';
             ship.style.display = 'flex';
             isPaused = false;
-            createEnemies();
+            createEnemyGrid();
+            gameLoop();
             setInterval(fire, 400);
-            setInterval(spawnPowerup, 12000);
+            setInterval(enemyRandomFire, 1500);
         }
 
         area.addEventListener('pointermove', (e) => {
@@ -72,16 +76,48 @@
             ship.style.transform = `translate3d(${shipX}px, ${shipY}px, 0)`;
         });
 
+        function createEnemyGrid() {
+            for(let r=0; r<3; r++) {
+                for(let c=0; c<8; c++) {
+                    const en = document.createElement('div');
+                    en.className = 'enemy';
+                    en.innerText = '👾';
+                    en.style.left = (c * 50 + 50) + 'px';
+                    en.style.top = (r * 50 + 60) + 'px';
+                    area.appendChild(en);
+                    enemies.push(en);
+                }
+            }
+        }
+
+        function gameLoop() {
+            if (isPaused) return;
+            if (!bossActive) {
+                let hitWall = false;
+                enemies.forEach(en => {
+                    let left = parseInt(en.style.left);
+                    en.style.left = (left + (enemyDirection * enemySpeed)) + 'px';
+                    if (left > window.innerWidth - 50 || left < 10) hitWall = true;
+                });
+
+                if (hitWall) {
+                    enemyDirection *= -1;
+                    enemies.forEach(en => en.style.top = (parseInt(en.style.top) + 20) + 'px');
+                }
+            } else {
+                // حركة البوس
+                let bx = parseInt(boss.style.left) || window.innerWidth/2;
+                if (bx > window.innerWidth - 130 || bx < 10) enemyDirection *= -1;
+                boss.style.left = (bx + (enemyDirection * 4)) + 'px';
+            }
+            requestAnimationFrame(gameLoop);
+        }
+
         function fire() {
             if (isPaused) return;
             shootSnd.cloneNode(true).play().catch(()=>{});
-            
-            if (isDoubleShot) {
-                createBullet(shipX + 10, shipY);
-                createBullet(shipX + 50, shipY);
-            } else {
-                createBullet(shipX + 30, shipY);
-            }
+            if (isDoubleShot) { createBullet(shipX + 10, shipY); createBullet(shipX + 50, shipY); }
+            else { createBullet(shipX + 30, shipY); }
         }
 
         function createBullet(x, y) {
@@ -92,46 +128,56 @@
             let m = setInterval(() => {
                 let t = parseInt(b.style.top);
                 b.style.top = (t - 15) + 'px';
-                document.querySelectorAll('.enemy').forEach(en => {
+                
+                // تصادم مع الأعداء العاديين
+                enemies.forEach((en, index) => {
                     let br = b.getBoundingClientRect(), er = en.getBoundingClientRect();
                     if (br.left < er.right && br.right > er.left && br.top < er.bottom && br.bottom > er.top) {
-                        en.innerText = '💥'; setTimeout(() => en.remove(), 150);
+                        en.remove(); enemies.splice(index, 1);
                         b.remove(); clearInterval(m);
                         score += 10; scoreEl.innerText = score;
-                        if(document.querySelectorAll('.enemy').length === 0) createEnemies();
+                        if (enemies.length === 0 && !bossActive) spawnBoss();
                     }
                 });
+
+                // تصادم مع البوس
+                if (bossActive) {
+                    let br = b.getBoundingClientRect(), bor = boss.getBoundingClientRect();
+                    if (br.left < bor.right && br.right > bor.left && br.top < bor.bottom && br.bottom > bor.top) {
+                        bossHealth -= 2; b.remove(); clearInterval(m);
+                        bossFill.style.width = bossHealth + '%';
+                        if (bossHealth <= 0) {
+                            boss.innerText = '💥'; setTimeout(()=>location.reload(), 2000);
+                        }
+                    }
+                }
                 if (t < -20) { b.remove(); clearInterval(m); }
             }, 15);
         }
 
-        function createEnemies() {
-            if (isPaused) return;
-            let rows = 3, cols = 6;
-            for(let r=0; r<rows; r++) {
-                for(let c=0; c<cols; c++) {
-                    const en = document.createElement('div');
-                    en.className = 'enemy';
-                    en.innerText = '🛸';
-                    en.style.left = (c * (window.innerWidth / cols) + 20) + 'px';
-                    en.style.top = (r * 60 + 50) + 'px';
-                    area.appendChild(en);
-                    setInterval(() => enemyFire(en), 2000 + Math.random() * 3000);
-                }
-            }
+        function spawnBoss() {
+            bossActive = true;
+            boss.style.display = 'block';
+            bossBar.style.display = 'block';
+            boss.style.left = '50%'; boss.style.top = '100px';
+            setInterval(() => { if(bossActive) enemyFire(boss, true); }, 1000);
         }
 
-        function enemyFire(en) {
-            if (isPaused || !en.parentElement) return;
+        function enemyRandomFire() {
+            if (isPaused || enemies.length === 0 || bossActive) return;
+            let randomEnemy = enemies[Math.floor(Math.random() * enemies.length)];
+            enemyFire(randomEnemy);
+        }
+
+        function enemyFire(en, isBoss = false) {
             const eb = document.createElement('div');
             eb.className = 'enemy-bullet';
-            eb.style.left = (parseInt(en.style.left) + 20) + 'px';
-            eb.style.top = (parseInt(en.style.top) + 40) + 'px';
+            eb.style.left = (parseInt(en.style.left) + (isBoss ? 60 : 20)) + 'px';
+            eb.style.top = (parseInt(en.style.top) + (isBoss ? 100 : 40)) + 'px';
             area.appendChild(eb);
-
             let m = setInterval(() => {
                 let t = parseInt(eb.style.top);
-                eb.style.top = (t + 6) + 'px';
+                eb.style.top = (t + 8) + 'px';
                 let sr = ship.getBoundingClientRect(), ebr = eb.getBoundingClientRect();
                 if (ebr.left < sr.right && ebr.right > sr.left && ebr.top < sr.bottom && ebr.bottom > sr.top) {
                     eb.remove(); clearInterval(m);
@@ -139,27 +185,6 @@
                     if (lives <= 0) location.reload();
                 }
                 if (t > window.innerHeight) { eb.remove(); clearInterval(m); }
-            }, 20);
-        }
-
-        function spawnPowerup() {
-            if (isPaused) return;
-            const p = document.createElement('div');
-            p.className = 'powerup';
-            p.innerText = '🎁';
-            p.style.left = Math.random() * (window.innerWidth - 40) + 'px';
-            p.style.top = '-50px';
-            area.appendChild(p);
-            let pm = setInterval(() => {
-                let pt = parseInt(p.style.top);
-                p.style.top = (pt + 4) + 'px';
-                let sr = ship.getBoundingClientRect(), pr = p.getBoundingClientRect();
-                if (pr.left < sr.right && pr.right > sr.left && pr.top < sr.bottom && pr.bottom > sr.top) {
-                    powerSnd.play(); p.remove(); clearInterval(pm);
-                    isDoubleShot = true; weaponEl.innerText = "سلاح مزدوج فعال! 🔥";
-                    setTimeout(() => { isDoubleShot = false; weaponEl.innerText = "سلاح عادي"; }, 8000);
-                }
-                if (pt > window.innerHeight) { p.remove(); clearInterval(pm); }
             }, 20);
         }
     </script>
