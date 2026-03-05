@@ -8,16 +8,14 @@
         body { margin: 0; background: #000; overflow: hidden; touch-action: none; font-family: 'Segoe UI', sans-serif; color: white; }
         #game-container { position: relative; width: 100vw; height: 100vh; background: radial-gradient(circle, #0a0a2e 0%, #000 100%); overflow: hidden; }
         .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 500; text-align: center; }
-        h1 { font-size: 40px; margin-bottom: 10px; color: #fff; text-shadow: 0 0 15px #00d2ff; }
+        h1 { font-size: 35px; margin-bottom: 10px; color: #fff; text-shadow: 0 0 15px #00d2ff; }
         .name-highlight { color: #ffea00; }
-        .btn-start { background: linear-gradient(45deg, #00d2ff, #3a7bd5); color: white; border: none; padding: 18px 50px; border-radius: 40px; font-size: 26px; font-weight: bold; cursor: pointer; box-shadow: 0 0 25px rgba(0,210,255,0.6); margin-top: 20px; }
-        .star { position: absolute; background: white; border-radius: 50%; opacity: 0.5; animation: moveStar linear infinite; }
-        @keyframes moveStar { from { transform: translateY(-100px); } to { transform: translateY(100vh); } }
-        #ship { position: absolute; width: 70px; height: 70px; font-size: 55px; z-index: 10; filter: drop-shadow(0 0 15px cyan); display: flex; align-items: center; justify-content: center; transition: transform 0.1s; }
-        .bullet { position: absolute; width: 4px; height: 25px; background: linear-gradient(to top, #00ffff, #fff); box-shadow: 0 0 15px #00ffff; border-radius: 10px; }
-        .enemy { position: absolute; width: 50px; height: 50px; font-size: 40px; filter: drop-shadow(0 0 8px red); }
-        #ui { position: absolute; top: 15px; right: 15px; z-index: 100; text-align: right; background: rgba(0,0,0,0.7); padding: 12px; border-radius: 15px; border: 1px solid #00d2ff; }
-        #share-btn { position: fixed; bottom: 20px; left: 20px; z-index: 1000; background: #25d366; color: white; border: none; padding: 12px 22px; border-radius: 50px; font-weight: bold; cursor: pointer; }
+        .btn-start { background: linear-gradient(45deg, #00d2ff, #3a7bd5); color: white; border: none; padding: 15px 40px; border-radius: 40px; font-size: 22px; font-weight: bold; cursor: pointer; box-shadow: 0 0 25px rgba(0,210,255,0.6); margin-top: 20px; }
+        #ship { position: absolute; width: 60px; height: 60px; font-size: 50px; z-index: 10; filter: drop-shadow(0 0 15px cyan); display: none; align-items: center; justify-content: center; touch-action: none; }
+        .bullet { position: absolute; width: 4px; height: 20px; background: #00ffff; box-shadow: 0 0 10px #00ffff; border-radius: 5px; }
+        .enemy { position: absolute; width: 45px; height: 45px; font-size: 35px; filter: drop-shadow(0 0 8px red); }
+        #ui { position: absolute; top: 10px; right: 10px; z-index: 100; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 10px; border: 1px solid #00d2ff; font-size: 14px; }
+        #share-btn { position: fixed; bottom: 15px; left: 15px; z-index: 1000; background: #25d366; color: white; border: none; padding: 10px 15px; border-radius: 50px; font-weight: bold; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -25,26 +23,25 @@
     <div id="game-container">
         <div id="start-screen" class="overlay">
             <h1>موقع المهندس: <span class="name-highlight">يوسف عماد</span></h1>
-            <p style="font-size: 22px; color: #00d2ff;">Yousuf Pro Space - طيران حر 🚀</p>
-            <button class="btn-start" onclick="startGame()">ابدأ اللعب الآن 🎮</button>
+            <p style="color: #00d2ff;">غزو الفضاء - تحكم حر بالصوت 🔊</p>
+            <button class="btn-start" onclick="startGame()">ابدأ اللعب الآن 🚀</button>
         </div>
 
         <div id="level-screen" class="overlay" style="display:none;">
-            <h2 id="level-msg" style="color: #2ecc71; font-size: 35px;">تم اجتياز المستوى! ✅</h2>
+            <h2 id="level-msg" style="color: #2ecc71;">تم اجتياز المستوى! ✅</h2>
             <button class="btn-start" onclick="nextLevel()">المستوى التالي 🚀</button>
         </div>
 
         <div id="ui" style="display:none;">
-            <div style="color:#00d2ff; font-weight: bold;">المستوى: <span id="level-num">1</span></div>
+            <div>المستوى: <span id="level-num">1</span></div>
             <div>النقاط: <span id="score">0</span></div>
-            <div style="color: #ffa500; font-size: 14px;">الهدف: <span id="target-score">100</span></div>
-            <div id="lives" style="color:#ff4757; font-size: 20px;">❤️❤️❤️</div>
+            <div id="lives">❤️❤️❤️</div>
         </div>
 
-        <div id="ship" style="display:none; left: 50%; bottom: 40px; transform: translateX(-50%);">🚀</div>
+        <div id="ship">🚀</div>
     </div>
 
-    <button id="share-btn" onclick="shareGame()">انشر اللعبة واكسب 📢</button>
+    <button id="share-btn" onclick="shareGame()">انشر اللعبة 📢</button>
 
     <script>
         const ship = document.getElementById('ship');
@@ -52,24 +49,14 @@
         const scoreEl = document.getElementById('score');
         const livesEl = document.getElementById('lives');
         const levelEl = document.getElementById('level-num');
-        const targetEl = document.getElementById('target-score');
 
         let score = 0; let lives = 3; let level = 1; 
         let isGameOver = false; let isPaused = true;
-        let fireRate = 450; let enemySpeed = 4; let targetScore = 100;
+        let enemySpeed = 4; let targetScore = 100;
 
-        function createStars() {
-            for(let i=0; i<40; i++) {
-                let star = document.createElement('div');
-                star.className = 'star';
-                star.style.width = Math.random() * 3 + 'px';
-                star.style.height = star.style.width;
-                star.style.left = Math.random() * 100 + 'vw';
-                star.style.animationDuration = (Math.random() * 3 + 2) + 's';
-                container.appendChild(star);
-            }
-        }
-        createStars();
+        // مكتبة الصوت (أصوات إلكترونية قصيرة)
+        const shootSound = new Audio('https://replit.com/public/images/smb_fireball.wav');
+        const explodeSound = new Audio('https://replit.com/public/images/smb_touched.wav');
 
         function startGame() {
             document.getElementById('start-screen').style.display = 'none';
@@ -77,63 +64,56 @@
             ship.style.display = 'flex';
             isPaused = false;
             spawnEnemy();
-            setInterval(fire, fireRate);
+            setInterval(fire, 400);
         }
 
-        // تعديل التحكم للطيران الحر (فوق، تحت، يمين، شمال)
-        const handleMove = (e) => {
+        // تحكم حر حقيقي (تتبع كامل للصباع)
+        const moveShip = (e) => {
             if (isGameOver || isPaused) return;
             let clientX = e.touches ? e.touches[0].clientX : e.clientX;
             let clientY = e.touches ? e.touches[0].clientY : e.clientY;
             
-            // تحديد مكان السفينة بالضبط حسب صباعك أو الماوس
-            let x = clientX - 35;
-            let y = clientY - 35;
-
-            // الحفاظ على السفينة داخل حدود الشاشة
-            if (x > 0 && x < window.innerWidth - 70) ship.style.left = x + 'px';
-            if (y > 0 && y < window.innerHeight - 70) ship.style.top = y + 'px';
-            ship.style.bottom = 'auto'; // إلغاء التثبيت السفلي القديم
+            // جعل السفينة في منتصف الصباع بالضبط
+            ship.style.left = (clientX - 30) + 'px';
+            ship.style.top = (clientY - 30) + 'px';
         };
-        container.addEventListener('touchmove', handleMove);
-        container.addEventListener('mousemove', handleMove);
+
+        container.addEventListener('touchmove', moveShip);
+        container.addEventListener('mousemove', moveShip);
 
         function fire() {
             if (isGameOver || isPaused) return;
+            shootSound.cloneNode(true).play(); // تشغيل صوت الطلقة
             const b = document.createElement('div');
             b.className = 'bullet';
-            b.style.left = (parseInt(ship.style.left) + 33) + 'px';
-            b.style.top = (parseInt(ship.style.top) - 20) + 'px';
+            b.style.left = (parseInt(ship.style.left) + 28) + 'px';
+            b.style.top = (parseInt(ship.style.top) - 10) + 'px';
             container.appendChild(b);
+
             let moveB = setInterval(() => {
-                let currentT = parseInt(b.style.top);
-                b.style.top = (currentT - 15) + 'px';
+                let currentTop = parseInt(b.style.top);
+                b.style.top = (currentTop - 15) + 'px';
+
                 document.querySelectorAll('.enemy').forEach(en => {
                     let br = b.getBoundingClientRect(); let er = en.getBoundingClientRect();
                     if (br.left < er.right && br.right > er.left && br.top < er.bottom && br.bottom > er.top) {
+                        explodeSound.cloneNode(true).play(); // تشغيل صوت الانفجار
                         en.innerText = '💥'; setTimeout(() => en.remove(), 100);
                         b.remove(); clearInterval(moveB);
                         score += 10; scoreEl.innerText = score;
-                        checkMission();
+                        if (score >= targetScore) {
+                            isPaused = true;
+                            document.getElementById('level-screen').style.display = 'flex';
+                        }
                     }
                 });
-                if (currentT < -50) { clearInterval(moveB); b.remove(); }
-            }, 15);
-        }
-
-        function checkMission() {
-            if (score >= targetScore) {
-                isPaused = true;
-                document.getElementById('level-screen').style.display = 'flex';
-                document.getElementById('level-msg').innerText = `ليفل ${level} اكتمل! ✅`;
-                document.querySelectorAll('.enemy').forEach(e => e.remove());
-            }
+                if (currentTop < -20) { clearInterval(moveB); b.remove(); }
+            }, 20);
         }
 
         function nextLevel() {
             level++; levelEl.innerText = level;
-            targetScore += 150; targetEl.innerText = targetScore;
-            enemySpeed += 1.5; fireRate = Math.max(200, fireRate - 50);
+            targetScore += 150; enemySpeed += 1.5;
             document.getElementById('level-screen').style.display = 'none';
             isPaused = false;
         }
@@ -142,31 +122,30 @@
             if (isGameOver || isPaused) { setTimeout(spawnEnemy, 1000); return; }
             const en = document.createElement('div');
             en.className = 'enemy';
-            en.innerText = level >= 3 ? '🛸' : '👾';
-            en.style.left = Math.random() * (window.innerWidth - 60) + 'px';
-            en.style.top = '-60px';
+            en.innerText = level >= 2 ? '🛸' : '👾';
+            en.style.left = Math.random() * (window.innerWidth - 50) + 'px';
+            en.style.top = '-50px';
             container.appendChild(en);
 
             let moveEn = setInterval(() => {
                 if (isPaused) return;
                 let currentT = parseInt(en.style.top);
                 en.style.top = (currentT + enemySpeed) + 'px';
+                
                 let sr = ship.getBoundingClientRect(); let er = en.getBoundingClientRect();
                 if (er.left < sr.right && er.right > sr.left && er.top < sr.bottom && er.bottom > sr.top) {
                     en.remove(); clearInterval(moveEn);
                     lives--; livesEl.innerText = "❤️".repeat(lives);
-                    if (lives <= 0) { isGameOver = true; alert("انتهت المحاولات! سكورك: " + score); location.reload(); }
+                    if (lives <= 0) { alert("انتهت المهمة! سكورك: " + score); location.reload(); }
                 }
                 if (currentT > window.innerHeight) { clearInterval(moveEn); en.remove(); }
-            }, 20);
-            setTimeout(spawnEnemy, 1200 - (level * 100));
+            }, 30);
+            setTimeout(spawnEnemy, 1000);
         }
 
         function shareGame() {
-            const text = "العب لُعبة غزو الفضاء الحر على موقع المهندس يوسف عماد! 🚀";
-            const url = window.location.href;
-            if (navigator.share) { navigator.share({ title: 'موقع يوسف عماد', text: text, url: url }); }
-            else { window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text + " " + url)}`, '_blank'); }
+            const text = "العب لعبة المهندس يوسف عماد الجديدة! 🚀";
+            if (navigator.share) navigator.share({ title: 'يوسف عماد', text: text, url: window.location.href });
         }
     </script>
     <script type='text/javascript' src='//pl28850103.effectivegatecpm.com/6c/f2/31/6cf2317723a650167c4a3465573e6976.js'></script>
