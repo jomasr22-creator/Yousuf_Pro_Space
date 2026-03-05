@@ -3,93 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>يوسف عماد | Yousuf Pro Space</title>
+    <title>مساحة البطل: يوسف عماد</title>
     <style>
-        body { margin: 0; background: #000; color: #fff; font-family: 'Segoe UI', sans-serif; overflow: hidden; display: flex; flex-direction: column; align-items: center; }
-        .header { text-align: center; padding: 15px; z-index: 100; position: absolute; top: 0; width: 100%; background: rgba(0,0,0,0.7); border-bottom: 2px solid #00d4ff; }
+        body { margin: 0; background: #000; color: #fff; font-family: 'Segoe UI', sans-serif; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100vh; }
         
-        /* اسمك منور في الموقع */
-        h1 { margin: 0; font-size: 2.5rem; color: #fff; text-shadow: 0 0 10px #00d4ff, 0 0 20px #00d4ff; }
-        .name-highlight { color: #ffea00; text-shadow: 0 0 10px #ffea00; }
-        
-        .score { font-size: 1.2rem; color: #00ff00; margin-top: 5px; }
-        canvas { display: block; background: #000; cursor: crosshair; }
+        /* صفحة البداية */
+        #start-screen { text-align: center; z-index: 100; transition: 0.5s; }
+        h1 { font-size: 3.5rem; text-shadow: 0 0 20px #00d4ff; margin-bottom: 20px; }
+        .name-highlight { color: #ffea00; }
+        #start-btn { padding: 15px 40px; font-size: 1.5rem; background: #00d4ff; border: none; border-radius: 50px; cursor: pointer; font-weight: bold; box-shadow: 0 0 20px #00d4ff; transition: 0.3s; }
+        #start-btn:hover { transform: scale(1.1); background: #fff; }
+
+        /* منطقة اللعبة */
+        #game-container { display: none; width: 100%; height: 100%; position: relative; }
+        .ui { position: absolute; top: 10px; width: 100%; text-align: center; pointer-events: none; }
+        canvas { background: radial-gradient(circle, #001f3f, #000); cursor: none; }
     </style>
 </head>
 <body>
 
-    <div class="header">
+    <div id="start-screen">
         <h1>مساحة البطل: <span class="name-highlight">يوسف عماد</span></h1>
-        <div class="score">النقاط: <span id="scoreVal">0</span></div>
+        <button id="start-btn">ابدأ اللعب الآن 🚀</button>
     </div>
 
-    <canvas id="starGame"></canvas>
+    <div id="game-container">
+        <div class="ui">
+            <h2 style="margin:0; color:#00d4ff;">يوسف عماد: حرب النجوم</h2>
+            <div style="font-size:1.5rem;">النقاط: <span id="scoreVal">0</span></div>
+        </div>
+        <canvas id="starGame"></canvas>
+    </div>
 
     <script>
+        const startScreen = document.getElementById('start-screen');
+        const gameContainer = document.getElementById('game-container');
+        const startBtn = document.getElementById('start-btn');
         const canvas = document.getElementById('starGame');
         const ctx = canvas.getContext('2d');
         const scoreVal = document.getElementById('scoreVal');
 
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        // لما نضغط على الزرار اللعبة تفتح
+        startBtn.onclick = () => {
+            startScreen.style.display = 'none';
+            gameContainer.style.display = 'block';
+            initGame();
+        };
 
-        let score = 0;
-        let player = { x: canvas.width/2, y: canvas.height - 100 };
-        let bullets = [];
-        let enemies = [];
+        function initGame() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            let score = 0;
+            let player = { x: canvas.width/2, y: canvas.height - 80 };
+            let bullets = [];
+            let enemies = [];
 
-        function createEnemy() {
-            enemies.push({ x: Math.random()*(canvas.width-40), y: -50, w: 40, h: 40, speed: 5 });
-        }
-        setInterval(createEnemy, 600);
+            function createEnemy() {
+                enemies.push({ x: Math.random()*(canvas.width-50), y: -50, w: 50, h: 50, speed: 4 });
+            }
+            setInterval(createEnemy, 700);
 
-        function gameLoop() {
-            ctx.fillStyle = "rgba(0, 0, 0, 0.2)"; 
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            function loop() {
+                ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // سفينة يوسف
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = "#00d4ff";
-            ctx.fillStyle = "#00d4ff";
-            ctx.beginPath();
-            ctx.moveTo(player.x, player.y);
-            ctx.lineTo(player.x - 20, player.y + 40);
-            ctx.lineTo(player.x + 20, player.y + 40);
-            ctx.closePath();
-            ctx.fill();
+                // رسم السفينة بتوهج
+                ctx.shadowBlur = 20; ctx.shadowColor = "#00d4ff";
+                ctx.fillStyle = "#00d4ff";
+                ctx.beginPath();
+                ctx.moveTo(player.x, player.y);
+                ctx.lineTo(player.x - 20, player.y + 40);
+                ctx.lineTo(player.x + 20, player.y + 40);
+                ctx.fill();
 
-            // الطلقات
-            bullets.forEach((b, bi) => {
-                b.y -= 12;
-                ctx.fillStyle = "#ff00ea";
-                ctx.fillRect(b.x-2, b.y, 4, 12);
-                if(b.y < 0) bullets.splice(bi, 1);
-            });
-
-            // الوحوش
-            enemies.forEach((e, ei) => {
-                e.y += e.speed;
-                ctx.fillStyle = "#ff3300";
-                ctx.fillRect(e.x, e.y, e.w, e.h);
-
-                bullets.forEach((b, bi) => {
-                    if(b.x > e.x && b.x < e.x + e.w && b.y > e.y && b.y < e.y + e.h) {
-                        enemies.splice(ei, 1);
-                        bullets.splice(bi, 1);
-                        score += 10;
-                        scoreVal.innerText = score;
-                    }
+                // الطلقات
+                bullets.forEach((b, i) => {
+                    b.y -= 15;
+                    ctx.fillStyle = "#ff00ea"; ctx.shadowColor = "#ff00ea";
+                    ctx.fillRect(b.x-2, b.y, 4, 15);
+                    if(b.y < 0) bullets.splice(i, 1);
                 });
-                if(e.y > canvas.height) enemies.splice(ei, 1);
-            });
 
-            requestAnimationFrame(gameLoop);
+                // الأعداء بتوهج أحمر
+                enemies.forEach((e, i) => {
+                    e.y += e.speed;
+                    ctx.fillStyle = "#ff3300"; ctx.shadowColor = "#ff3300";
+                    ctx.fillRect(e.x, e.y, e.w, e.h);
+
+                    bullets.forEach((b, bi) => {
+                        if(b.x > e.x && b.x < e.x + e.w && b.y > e.y && b.y < e.y + e.h) {
+                            enemies.splice(i, 1); bullets.splice(bi, 1);
+                            score += 10; scoreVal.innerText = score;
+                        }
+                    });
+                });
+                requestAnimationFrame(loop);
+            }
+
+            window.onmousemove = (e) => player.x = e.clientX;
+            window.onclick = () => bullets.push({ x: player.x, y: player.y });
+            loop();
         }
-
-        window.addEventListener('mousemove', (e) => { player.x = e.clientX; });
-        window.addEventListener('mousedown', () => { bullets.push({ x: player.x, y: player.y }); });
-        
-        gameLoop();
     </script>
 
     <script type='text/javascript' src='//pl28850103.effectivegatecpm.com/6c/f2/31/6cf2317723a650167c4a3465573e6976.js'></script>
