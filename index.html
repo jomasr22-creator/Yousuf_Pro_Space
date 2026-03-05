@@ -3,157 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Youssef Emad Studio</title>
+    <title>Yousuf Pro Space - Game & Ads</title>
+    <link rel="stylesheet" href="style.css">
     <style>
-        body { 
-            margin: 0; background: #020205; color: white; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            text-align: center; display: flex; flex-direction: column; 
-            justify-content: center; height: 100vh; overflow: hidden;
+        /* إضافة تنسيق بسيط لضمان ظهور اللعبة بشكل جيد */
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #1a1a1a;
+            color: white;
+            font-family: Arial, sans-serif;
         }
-
-        /* تأثير النجوم المتحركة في الخلفية */
-        #star-field {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
-            background: black;
+        #game-container {
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
         }
-        .star {
-            position: absolute; background: white; border-radius: 50%;
-            opacity: 0.8; animation: travel linear infinite;
-        }
-        @keyframes travel {
-            from { transform: translateY(-10vh); opacity: 0; }
-            50% { opacity: 1; }
-            to { transform: translateY(110vh); opacity: 0; }
-        }
-
-        header { 
-            padding: 30px; border-radius: 25px; border: 2px solid #00f2fe; 
-            max-width: 80%; margin: 0 auto; background: rgba(0, 0, 0, 0.6); 
-            backdrop-filter: blur(10px); box-shadow: 0 0 30px rgba(0, 242, 254, 0.3);
-        }
-        h1 { 
-            color: #fff; text-shadow: 0 0 15px #00f2fe, 0 0 30px #00f2fe; 
-            margin: 10px 0; font-size: 2.2em; letter-spacing: 2px;
-        }
-        p { opacity: 0.8; font-size: 1.1em; }
-        .play-btn { 
-            background: linear-gradient(45deg, #00f2fe, #4facfe); color: black; 
-            border: none; padding: 18px 40px; border-radius: 50px; cursor: pointer; 
-            font-weight: bold; font-size: 1.2em; box-shadow: 0 5px 20px rgba(0, 242, 254, 0.5);
-            transition: 0.3s; margin-top: 20px;
-        }
-        .play-btn:hover { transform: scale(1.1); box-shadow: 0 5px 30px #00f2fe; }
-
-        #game-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; }
-        #game-canvas { width: 100%; height: 100%; position: relative; overflow: hidden; cursor: crosshair; }
-        
-        /* تصميم السفينة الجديد */
-        #ship { 
-            position: absolute; bottom: 40px; left: 50%; font-size: 55px; 
-            transform: translateX(-50%); z-index: 10;
-            filter: drop-shadow(0 0 10px #4facfe);
-            transition: transform 0.1s;
-        }
-        
-        .bullet { position: absolute; width: 6px; height: 20px; background: #00f2fe; border-radius: 5px; box-shadow: 0 0 10px #00f2fe; }
-        .enemy { position: absolute; font-size: 40px; filter: drop-shadow(0 0 5px red); }
-        #score { position: absolute; top: 30px; right: 30px; color: #4facfe; font-size: 28px; font-weight: bold; z-index: 10000; text-shadow: 0 0 10px #000; }
-        #close-btn { position: absolute; top: 20px; left: 20px; background: rgba(255, 77, 77, 0.8); color: white; border: none; padding: 12px 20px; border-radius: 12px; cursor: pointer; z-index: 10001; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div id="star-field"></div>
 
-    <header>
-        <h1>YOUSSEF EMAD STUDIO</h1>
-        <p>تصميم واجهات وتطوير ألعاب إبداعية</p>
-        <button class="play-btn" onclick="openGame()">ابدأ المهمة 🚀</button>
-    </header>
-
-    <div id="game-modal">
-        <button id="close-btn" onclick="location.reload()">إنهاء المهمة X</button>
-        <div id="game-canvas">
-            <div id="score">النقاط: <span id="pts">0</span></div>
-            <div id="ship">🚀</div>
+    <div id="game-container">
+        <h1>مرحباً بك في Yousuf Pro Space</h1>
+        <p>استمتع باللعبة الآن!</p>
         </div>
-    </div>
 
-    <script>
-        // برمجة النجوم المتحركة
-        const field = document.getElementById('star-field');
-        for (let i = 0; i < 150; i++) {
-            const s = document.createElement('div');
-            s.className = 'star';
-            const size = Math.random() * 3 + 'px';
-            s.style.width = size; s.style.height = size;
-            s.style.left = Math.random() * 100 + 'vw';
-            s.style.animationDuration = (Math.random() * 2 + 1) + 's';
-            s.style.animationDelay = Math.random() * 5 + 's';
-            field.appendChild(s);
-        }
+    <script src="script.js"></script>
 
-        let gameActive = false;
-        function openGame() {
-            document.getElementById('game-modal').style.display = 'block';
-            gameActive = true;
-            const canvas = document.getElementById('game-canvas');
-            const ship = document.getElementById('ship');
-            let score = 0;
-
-            const move = (e) => {
-                if(!gameActive) return;
-                let x = (e.touches ? e.touches[0].clientX : e.clientX);
-                // منع السفينة من الخروج عن الشاشة
-                if (x > 40 && x < window.innerWidth - 40) {
-                    ship.style.left = (x) + 'px';
-                }
-            };
-            canvas.addEventListener('mousemove', move);
-            canvas.addEventListener('touchmove', (e) => { move(e); e.preventDefault(); }, {passive: false});
-
-            // إطلاق الليزر
-            setInterval(() => {
-                if(!gameActive) return;
-                const b = document.createElement('div');
-                b.className = 'bullet';
-                b.style.left = (ship.offsetLeft - 3) + 'px';
-                b.style.bottom = '100px';
-                canvas.appendChild(b);
-                let bMove = setInterval(() => {
-                    let bBottom = parseInt(b.style.bottom);
-                    b.style.bottom = (bBottom + 18) + 'px';
-                    if(bBottom > window.innerHeight) { b.remove(); clearInterval(bMove); }
-                    document.querySelectorAll('.enemy').forEach(en => {
-                        let r1 = b.getBoundingClientRect(), r2 = en.getBoundingClientRect();
-                        if(!(r1.right < r2.left || r1.left > r2.right || r1.bottom < r2.top || r1.top > r2.bottom)) {
-                            en.innerText = '💥'; setTimeout(() => en.remove(), 100);
-                            b.remove(); score += 10; document.getElementById('pts').innerText = score;
-                        }
-                    });
-                }, 20);
-            }, 300);
-
-            // ظهور الوحوش
-            setInterval(() => {
-                if(!gameActive) return;
-                const en = document.createElement('div');
-                en.className = 'enemy'; 
-                en.innerText = (Math.random() > 0.5 ? '👾' : '🛸');
-                en.style.left = Math.random() * (window.innerWidth - 60) + 30 + 'px';
-                en.style.top = '-60px';
-                canvas.appendChild(en);
-                let eMove = setInterval(() => {
-                    let eTop = parseInt(en.style.top);
-                    en.style.top = (eTop + 7) + 'px';
-                    let r1 = en.getBoundingClientRect(), r2 = ship.getBoundingClientRect();
-                    if(!(r1.right < r2.left || r1.left > r2.right || r1.bottom < r2.top || r1.top > r2.bottom)) {
-                        gameActive = false; alert("تحطمت السفينة! مجموع نقاطك: " + score); location.reload();
-                    }
-                    if(eTop > window.innerHeight) { en.remove(); clearInterval(eMove); }
-                }, 30);
-            }, 800);
-        }
-    </script>
-</body>
+    <script type='text/javascript' src='//pl28850103.effectivegatecpm.com/6c/f2/31/6cf2317723a650167c4a3465573e6976.js'></script>
+    </body>
 </html>
