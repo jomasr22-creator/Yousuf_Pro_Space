@@ -3,69 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yousuf Pro Space</title>
+    <title>Yousuf Pro Space - Full Game</title>
     <style>
-        /* كل التصميم هنا عشان متبقاش محتاج ملف CSS */
+        /* التنسيق الكامل والشكل اللي كان في الفيديو */
         body {
             margin: 0;
-            background: #000;
+            padding: 0;
+            background: radial-gradient(circle, #1a1a2e 0%, #0f0f1a 100%);
             color: white;
+            font-family: 'Segoe UI', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
-            font-family: Arial, sans-serif;
             overflow: hidden;
         }
-        h1 { font-size: 2.5rem; text-shadow: 0 0 10px #00d4ff; margin: 10px; }
-        .highlight { background: #00d4ff; padding: 2px 8px; border-radius: 5px; color: black; }
+
+        .container {
+            text-align: center;
+            z-index: 10;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin: 0;
+            text-shadow: 0 0 20px #00d4ff;
+            animation: glow 2s infinite alternate;
+        }
+
+        p {
+            font-size: 1.5rem;
+            color: #bdc3c7;
+        }
+
+        .highlight {
+            background: #2c5d7d;
+            padding: 2px 10px;
+            border-radius: 5px;
+        }
+
+        /* شكل اللعبة */
         #gameCanvas {
             border: 3px solid #00d4ff;
-            background: #050505;
-            box-shadow: 0 0 20px #00d4ff;
-            max-width: 90%;
-            max-height: 60vh;
+            border-radius: 15px;
+            background: #000;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.4);
+            margin-top: 20px;
+            cursor: crosshair;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 10px #00d4ff; }
+            to { text-shadow: 0 0 30px #00d4ff, 0 0 40px #0055ff; }
         }
     </style>
 </head>
 <body>
 
-    <h1>Yousuf Pro Space</h1>
-    <p>استمتع <span class="highlight">باللعبة</span> الآن واجمع النقاط!</p>
+    <div class="container">
+        <h1>Yousuf Pro Space</h1>
+        <p>استمتع <span class="highlight">باللعبة</span> الآن واجمع النقاط!</p>
+    </div>
 
-    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <canvas id="gameCanvas" width="600" height="300"></canvas>
 
     <script>
-        // كود اللعبة كامل هنا عشان متبقاش محتاج ملف script.js
+        // كود برمجة اللعبة بالكامل
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        let x = canvas.width / 2;
-        let y = canvas.height - 30;
-        let dx = 2;
-        let dy = -2;
+        
+        let ballX = canvas.width / 2;
+        let ballY = canvas.height - 30;
+        let dx = 3;
+        let dy = -3;
+        let ballRadius = 10;
 
         function drawBall() {
             ctx.beginPath();
-            ctx.arc(x, y, 10, 0, Math.PI*2);
+            ctx.arc(ballX, ballY, ballRadius, 0, Math.PI*2);
             ctx.fillStyle = "#00d4ff";
             ctx.fill();
             ctx.closePath();
         }
 
-        function draw() {
+        function update() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             drawBall();
-            if(x + dx > canvas.width-10 || x + dx < 10) dx = -dx;
-            if(y + dy > canvas.height-10 || y + dy < 10) dy = -dy;
-            x += dx;
-            y += dy;
-            requestAnimationFrame(draw);
+
+            if(ballX + dx > canvas.width - ballRadius || ballX + dx < ballRadius) {
+                dx = -dx;
+            }
+            if(ballY + dy > canvas.height - ballRadius || ballY + dy < ballRadius) {
+                dy = -dy;
+            }
+
+            ballX += dx;
+            ballY += dy;
+            requestAnimationFrame(update);
         }
-        draw();
+
+        update();
     </script>
 
     <script type='text/javascript' src='//pl28850103.effectivegatecpm.com/6c/f2/31/6cf2317723a650167c4a3465573e6976.js'></script>
-
-</body>
+    </body>
 </html>
